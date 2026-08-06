@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DESMASCARA — Real ou Fake? | Maratona Tech 2026</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎭</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#06071a; --card:#141840; --card2:#1a1f52; --line:rgba(255,255,255,.09);
+  --txt:#eef0ff; --mut:#9aa0c7;
+  --blue:#5aa9ff; --purple:#8b5cf6; --cyan:#3fd0d2;
+  --red:#ff5468; --amber:#ffb020; --green:#2ee59d;
+  --grad:linear-gradient(135deg,#5aa9ff,#8b5cf6 55%,#c44dff);
+}
+html,body{height:100%}
+body{background:var(--bg);color:var(--txt);font-family:'Sora',system-ui,sans-serif;overflow:hidden}
+/* ===== fundo vivo ===== */
+.bgfx{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.bgfx .grid{position:absolute;inset:0;background-image:linear-gradient(rgba(90,169,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(90,169,255,.06) 1px,transparent 1px);background-size:46px 46px;-webkit-mask-image:radial-gradient(ellipse at 50% 42%,#000 25%,transparent 75%);mask-image:radial-gradient(ellipse at 50% 42%,#000 25%,transparent 75%)}
+.blob{position:absolute;border-radius:50%;filter:blur(75px);opacity:.32;animation:drift 16s ease-in-out infinite alternate}
+.b1{width:440px;height:440px;background:#3b2a8f;top:-140px;left:-90px}
+.b2{width:400px;height:400px;background:#0d4f70;bottom:-140px;right:-70px;animation-delay:-8s}
+@keyframes drift{to{transform:translate(70px,45px) scale(1.12)}}
+.bit{position:absolute;font-family:'Unbounded';font-size:11px;color:rgba(140,150,255,.28);animation:fall linear infinite;top:-40px}
+@keyframes fall{to{transform:translateY(112vh)}}
+/* ===== palco ===== */
+.stage{position:relative;z-index:1;height:100dvh;display:flex;align-items:center;justify-content:center;gap:60px;padding:18px}
+.side{width:330px;flex:none}
+.side .kicker{font-family:'Unbounded';font-size:11px;letter-spacing:3px;color:var(--cyan);text-transform:uppercase}
+.side h2{font-family:'Unbounded';font-size:34px;line-height:1.1;margin:14px 0 8px}
+.side h2 span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.side .tag{color:var(--mut);font-size:14px;line-height:1.6;margin-bottom:20px}
+.side ul{list-style:none;display:grid;gap:10px;margin-bottom:22px}
+.side li{font-size:13px;color:#cfd4f7;display:flex;gap:10px;align-items:center;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:12px;padding:9px 12px;transition:.25s}
+.side li:hover{border-color:var(--purple);transform:translateX(4px)}
+.side .stamp{font-size:11px;color:var(--mut);border-top:1px dashed var(--line);padding-top:14px}
+/* ===== telefone ===== */
+.phone{width:398px;height:min(850px,96dvh);flex:none;background:#04050f;border-radius:46px;border:1px solid #2a2f6b;padding:11px;position:relative;box-shadow:0 40px 90px rgba(20,10,80,.55),0 0 0 1px rgba(139,92,246,.15),inset 0 0 30px rgba(90,169,255,.05)}
+.phone::before{content:'';position:absolute;top:20px;left:50%;transform:translateX(-50%);width:120px;height:24px;background:#04050f;border-radius:14px;z-index:30;border:1px solid #1c2150}
+.app{height:100%;display:flex;flex-direction:column;background:radial-gradient(120% 90% at 50% -5%,#181d52 0%,#0a0c26 55%,#070818 100%);border-radius:36px;overflow:hidden;position:relative}
+.app::after{content:'';position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(255,255,255,.012) 3px 4px);z-index:1}
+/* barra superior */
+.appbar{display:flex;align-items:center;gap:10px;padding:38px 14px 10px;position:relative;z-index:5}
+.iconbtn{width:36px;height:36px;flex:none;border-radius:11px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--txt);font-size:15px;cursor:pointer;transition:.2s;display:grid;place-items:center}
+.iconbtn:hover{border-color:var(--blue);transform:translateY(-1px)}
+#hBack{visibility:hidden}
+.hTitle{flex:1;text-align:center;font-family:'Unbounded';font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:#dfe3ff}
+/* telas */
+.screens{flex:1;overflow-y:auto;position:relative;z-index:4;scrollbar-width:thin;scrollbar-color:#3a3f8a transparent}
+.screens::-webkit-scrollbar{width:5px}.screens::-webkit-scrollbar-thumb{background:#3a3f8a;border-radius:4px}
+.screen{display:none;padding:10px 16px 26px}
+.screen.active{display:block}
+.screen.active>*{animation:rise .55s cubic-bezier(.2,.7,.2,1) both}
+.screen.active>*:nth-child(2){animation-delay:.06s}.screen.active>*:nth-child(3){animation-delay:.12s}
+.screen.active>*:nth-child(4){animation-delay:.18s}.screen.active>*:nth-child(5){animation-delay:.24s}
+.screen.active>*:nth-child(6){animation-delay:.3s}.screen.active>*:nth-child(7){animation-delay:.36s}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}}
+.rv{opacity:0;transform:translateY(14px);transition:opacity .5s,transform .5s}
+.rv.vis{opacity:1;transform:none}
+/* componentes gerais */
+h3.sec{font-family:'Unbounded';font-size:16px;line-height:1.3;margin:20px 0 10px}
+h3.sec em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+p.lead{color:var(--mut);font-size:13px;line-height:1.65}
+.card{background:linear-gradient(180deg,var(--card),#101336);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px;transition:.25s}
+.card:hover{border-color:rgba(139,92,246,.55);transform:translateY(-2px)}
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:9.5px;font-weight:700;letter-spacing:.4px;padding:3px 8px;border-radius:99px;border:1px solid;text-transform:uppercase}
+.bg-green{color:var(--green);border-color:rgba(46,229,157,.4);background:rgba(46,229,157,.08)}
+.bg-red{color:#ff8a97;border-color:rgba(255,84,104,.45);background:rgba(255,84,104,.1)}
+.bg-amber{color:#ffcf70;border-color:rgba(255,176,32,.45);background:rgba(255,176,32,.1)}
+.bg-blue{color:#8cc4ff;border-color:rgba(90,169,255,.45);background:rgba(90,169,255,.1)}
+.btn{font-family:'Sora';font-weight:700;font-size:14px;border:none;cursor:pointer;border-radius:14px;padding:14px 20px;color:#fff;background:var(--grad);box-shadow:0 8px 24px rgba(139,92,246,.35);transition:.2s;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
+.btn:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(139,92,246,.5)}
+.btn:active{transform:scale(.97)}
+.btn.ghost{background:rgba(255,255,255,.06);box-shadow:none;border:1px solid var(--line)}
+.btn.ghost:hover{border-color:var(--blue)}
+.btn.wide{width:100%}
+.btn.real{background:linear-gradient(135deg,#1db77e,#2ee59d);color:#04281a;box-shadow:0 8px 20px rgba(46,229,157,.25)}
+.btn.fakeb{background:linear-gradient(135deg,#e0334c,#ff5468);box-shadow:0 8px 20px rgba(255,84,104,.25)}
+.btn.real:hover,.btn.fakeb:hover{transform:translateY(-2px)}
+.mini{font-size:11px;color:var(--mut);line-height:1.6}
+/* ===== TELA 1 — abertura ===== */
+.home{display:flex;flex-direction:column;justify-content:center;min-height:100%;text-align:center;padding-top:26px}
+.evchip{display:inline-flex;gap:6px;align-items:center;align-self:center;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#cfd4f7;border:1px solid var(--line);border-radius:99px;padding:6px 13px;background:rgba(255,255,255,.04);margin-bottom:26px}
+.logo{width:96px;height:96px;margin:0 auto 18px;border-radius:28px;background:var(--grad);display:grid;place-items:center;font-size:46px;box-shadow:0 16px 44px rgba(139,92,246,.5);animation:floaty 4.5s ease-in-out infinite}
+@keyframes floaty{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-9px) rotate(2deg)}}
+.wordmark{font-family:'Unbounded';font-weight:900;font-size:31px;letter-spacing:2px;position:relative;display:inline-block}
+.wordmark::before,.wordmark::after{content:attr(data-t);position:absolute;inset:0;opacity:.75}
+.wordmark::before{color:var(--cyan);animation:gl1 3.2s infinite steps(1)}
+.wordmark::after{color:var(--red);animation:gl2 2.9s infinite steps(1)}
+@keyframes gl1{0%,93%,100%{transform:none;opacity:0}94%{transform:translate(-3px,1px);opacity:.8}97%{transform:translate(2px,-1px);opacity:.6}}
+@keyframes gl2{0%,88%,100%{transform:none;opacity:0}89%{transform:translate(3px,-2px);opacity:.8}92%{transform:translate(-2px,1px);opacity:.6}}
+.tw{font-size:15px;color:#cfd4f7;margin:14px 0 4px;min-height:24px}
+.tw .caret{display:inline-block;width:8px;background:var(--cyan);animation:blink .8s steps(1) infinite;margin-left:2px}
+@keyframes blink{50%{opacity:0}}
+.homestats{display:flex;gap:8px;justify-content:center;margin:22px 0 24px;flex-wrap:wrap}
+.homestats span{font-size:10.5px;padding:7px 11px;border-radius:11px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--mut)}
+.homestats b{color:#fff}
+.homebtns{display:grid;gap:10px}
+.shine{position:relative;overflow:hidden}
+.shine::after{content:'';position:absolute;top:0;left:-80%;width:50%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.35),transparent);transform:skewX(-20deg);animation:sweep 2.8s ease-in-out infinite}
+@keyframes sweep{0%,55%{left:-80%}90%,100%{left:130%}}
+/* ===== TELA 2 — problema ===== */
+.def{border-left:3px solid var(--purple);position:relative}
+.def .scan{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);animation:scan 3.4s linear infinite;opacity:.7}
+@keyframes scan{from{top:6%}to{top:94%}}
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.vs .card{margin:0}
+.vs h4{font-family:'Unbounded';font-size:11.5px;margin-bottom:7px}
+.vs p{font-size:11.5px;color:var(--mut);line-height:1.55}
+.cases .card{display:flex;gap:12px;align-items:flex-start}
+.cico{font-size:24px;flex:none;width:44px;height:44px;display:grid;place-items:center;border-radius:13px;background:rgba(255,255,255,.05);border:1px solid var(--line)}
+.cases h4{font-size:13.5px;margin-bottom:4px}
+.cases p{font-size:11.5px;color:var(--mut);line-height:1.55;margin-bottom:7px}
+/* comparador */
+.cmp{position:relative;border-radius:18px;overflow:hidden;border:1px solid var(--line);aspect-ratio:10/9;user-select:none;touch-action:none;cursor:ew-resize;--x:56%}
+.cmp-layer{position:absolute;inset:0}
+.cmp-layer svg{width:100%;height:100%;display:block}
+.cmp-fake{clip-path:inset(0 0 0 var(--x))}
+.cmp-handle{position:absolute;top:0;bottom:0;left:var(--x);width:3px;background:#fff;transform:translateX(-50%);box-shadow:0 0 14px rgba(255,255,255,.8);z-index:3}
+.cmp-handle::after{content:'⟷';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:38px;height:38px;border-radius:50%;background:#fff;color:#111;display:grid;place-items:center;font-size:16px;box-shadow:0 4px 14px rgba(0,0,0,.5)}
+.cmp-tag{position:absolute;top:10px;font-family:'Unbounded';font-size:9px;letter-spacing:1.5px;padding:5px 9px;border-radius:8px;z-index:2}
+.cmp-tag.o{left:10px;background:rgba(46,229,157,.9);color:#04281a}
+.cmp-tag.f{right:10px;background:rgba(255,84,104,.92);color:#fff}
+.legend{display:grid;gap:6px;margin-top:10px}
+.legend div{font-size:11px;color:var(--mut);display:flex;gap:8px;align-items:center}
+.dotn{width:18px;height:18px;flex:none;border-radius:50%;background:var(--red);color:#fff;font-size:10px;font-weight:700;display:grid;place-items:center}
+/* ===== TELA 3 — fluxo ===== */
+.flow{position:relative;padding-left:6px}
+.step{display:flex;gap:12px;position:relative}
+.snum{flex:none;width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-size:20px;background:var(--grad);box-shadow:0 6px 18px rgba(139,92,246,.35)}
+.scard{flex:1;background:linear-gradient(180deg,var(--card),#101336);border:1px solid var(--line);border-radius:15px;padding:12px 14px;margin-bottom:4px;transition:.25s}
+.scard:hover{border-color:var(--cyan);transform:translateX(4px)}
+.scard b{font-family:'Unbounded';font-size:11px;letter-spacing:1px;display:block;margin-bottom:4px;color:#dfe3ff}
+.scard p{font-size:11.5px;color:var(--mut);line-height:1.55}
+.farrow{height:34px;width:46px;display:grid;place-items:center;color:var(--purple);font-size:20px;animation:pulseA 1.6s ease-in-out infinite}
+@keyframes pulseA{0%,100%{transform:translateY(0);opacity:.6}50%{transform:translateY(6px);opacity:1}}
+.alertline{border:1px dashed rgba(255,176,32,.55);background:rgba(255,176,32,.07);border-radius:14px;padding:11px 13px;font-size:11.5px;color:#ffcf70;line-height:1.55;margin-top:8px}
+/* ===== TELA 4 — riscos ===== */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.who{margin:0}
+.who .e{font-size:24px}
+.who b{font-size:12px;display:block;margin:6px 0 3px}
+.who p{font-size:10.5px;color:var(--mut);line-height:1.5}
+.who.w-red{border-left:3px solid var(--red)}
+.who.w-amber{border-left:3px solid var(--amber)}
+.who.w-blue{border-left:3px solid var(--blue)}
+.who.w-purple{border-left:3px solid var(--purple)}
+.consq{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px dashed var(--line);font-size:12px;line-height:1.55;color:#dfe3ff}
+.consq:last-child{border:none}
+.consq span{font-size:17px;flex:none}
+.ele{border:1px solid rgba(255,176,32,.5);background:linear-gradient(180deg,rgba(255,176,32,.09),rgba(255,84,104,.06));border-radius:18px;padding:16px;margin-top:16px}
+.ele h4{font-family:'Unbounded';font-size:14px;margin-bottom:4px}
+.ele .sub{font-size:11px;color:#ffcf70;margin-bottom:12px}
+.eitem{display:flex;gap:9px;font-size:11.5px;line-height:1.5;color:#f4e9d4;margin-bottom:9px}
+.eitem b{color:#fff}
+/* ===== TELA 5 — defesa ===== */
+.list{display:grid;gap:8px}
+.item{display:flex;gap:11px;align-items:flex-start;background:rgba(255,255,255,.035);border:1px solid var(--line);border-radius:13px;padding:11px 12px;font-size:12px;line-height:1.55;transition:.2s}
+.item:hover{transform:translateX(3px)}
+.item .ic{font-size:18px;flex:none;margin-top:1px}
+.item.g{border-left:3px solid var(--green)}
+.item.r{border-left:3px solid var(--red)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.chip{font-size:11px;font-weight:600;border-radius:99px;padding:8px 13px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:#dfe3ff;cursor:pointer;transition:.2s}
+.chip:hover{border-color:var(--cyan);transform:translateY(-2px)}
+/* ===== quiz ===== */
+.qtop{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.qtop span{font-family:'Unbounded';font-size:10.5px;letter-spacing:1px;color:var(--mut)}
+.qbar{flex:1;height:7px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
+.qbar i{display:block;height:100%;width:0;background:var(--grad);border-radius:99px;transition:width .4s}
+.qcard{background:linear-gradient(180deg,var(--card2),#131747);border:1px solid var(--line);border-radius:18px;padding:20px 16px;text-align:center;min-height:150px;display:flex;flex-direction:column;justify-content:center;gap:10px}
+.qcard .qi{font-size:34px}
+.qcard p{font-size:13.5px;line-height:1.6}
+.qbtns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.qwhy{border-radius:14px;padding:12px 14px;font-size:12px;line-height:1.6;margin-bottom:12px}
+.qwhy.ok{background:rgba(46,229,157,.12);border:1px solid rgba(46,229,157,.5);color:#c9ffe8}
+.qwhy.err{background:rgba(255,84,104,.12);border:1px solid rgba(255,84,104,.5);color:#ffd7dc}
+.shake{animation:shake .4s}
+@keyframes shake{20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.endcard{text-align:center;padding:26px 18px}
+.endcard .big{font-family:'Unbounded';font-size:42px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.endcard h4{font-family:'Unbounded';font-size:15px;margin:10px 0 8px}
+/* ===== simulador ===== */
+.chat{display:flex;flex-direction:column;gap:9px;min-height:200px;max-height:320px;overflow-y:auto;padding:4px 2px;margin-bottom:10px}
+.bub{max-width:86%;padding:10px 13px;border-radius:15px;font-size:12px;line-height:1.6;animation:rise .4s both}
+.bub.bot{background:rgba(255,255,255,.06);border:1px solid var(--line);border-bottom-left-radius:4px;align-self:flex-start}
+.bub.user{background:linear-gradient(135deg,#3b6fe0,#8b5cf6);border-bottom-right-radius:4px;align-self:flex-end}
+.bub .lvl{display:inline-block;font-size:9.5px;font-weight:700;letter-spacing:.6px;padding:3px 8px;border-radius:99px;margin-bottom:6px}
+.chatinput{display:flex;gap:8px;margin-top:10px}
+.chatinput input{flex:1;background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:12px;color:#fff;font-family:'Sora';font-size:12.5px;padding:12px;outline:none}
+.chatinput input:focus{border-color:var(--blue)}
+.chatinput button{flex:none}
+/* ===== fontes ===== */
+.src .card h4{font-size:12.5px;margin-bottom:4px}
+.src .card p{font-size:11px;color:var(--mut);line-height:1.55}
+.rulebox{border:1px solid rgba(255,176,32,.5);background:rgba(255,176,32,.07);border-radius:15px;padding:13px;font-size:11.5px;line-height:1.6;color:#ffe9c4;margin-top:6px}
+/* ===== tabbar ===== */
+.tabbar{display:flex;gap:4px;padding:9px 10px 14px;border-top:1px solid var(--line);background:rgba(6,7,26,.85);backdrop-filter:blur(8px);position:relative;z-index:6}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 2px;border-radius:13px;background:none;border:none;color:var(--mut);font-family:'Sora';font-size:9px;font-weight:600;cursor:pointer;transition:.2s}
+.tab .ti{font-size:18px;transition:.2s}
+.tab:hover{color:#dfe3ff}
+.tab.on{color:#fff;background:rgba(139,92,246,.16)}
+.tab.on .ti{transform:translateY(-2px) scale(1.15);filter:drop-shadow(0 3px 8px rgba(139,92,246,.6))}
+@media(max-width:920px){.side{display:none}.stage{padding:0}}
+@media(max-width:440px){.phone{width:100%;height:100dvh;border-radius:0;border:none;padding:0}.phone::before{display:none}.app{border-radius:0}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="bgfx" aria-hidden="true">
+  <div class="grid"></div><div class="blob b1"></div><div class="blob b2"></div>
+  <span class="bit" style="left:6%;animation-duration:13s">FAKE DETECTED</span>
+  <span class="bit" style="left:22%;animation-duration:17s;animation-delay:-6s">IA</span>
+  <span class="bit" style="left:78%;animation-duration:15s;animation-delay:-3s">01001</span>
+  <span class="bit" style="left:88%;animation-duration:19s;animation-delay:-10s">SYNC ⚠</span>
+  <span class="bit" style="left:64%;animation-duration:22s;animation-delay:-14s">REAL?</span>
+</div>
+
+<div class="stage">
+  <!-- painel lateral (desktop) -->
+  <aside class="side">
+    <div class="kicker">Maratona Tech 2026 · Fase 1</div>
+    <h2>Dilemas<br>Digitais: <span>Deepfakes</span></h2>
+    <p class="tag">Protótipo navegável de app educativo para jovens: identifique, evite e combata falsificações geradas por IA.</p>
+    <ul>
+      <li>📱 9 telas navegáveis (4 perguntas obrigatórias)</li>
+      <li>🎮 Quiz “Real ou Fake?” com pontuação</li>
+      <li>🔬 Comparador Original × Deepfake</li>
+      <li>🤖 Simulador de golpes por chat</li>
+      <li>📚 Fontes verificáveis (Wikipédia + fact-checking)</li>
+    </ul>
+    <div class="stamp">Use as setas do teclado ou toque na barra inferior do celular para navegar.</div>
+  </aside>
+
+  <!-- telefone -->
+  <div class="phone">
+    <div class="app">
+      <header class="appbar">
+        <button class="iconbtn" id="hBack" aria-label="Voltar">←</button>
+        <div class="hTitle" id="hTitle">Início</div>
+        <button class="iconbtn" id="hSrc" aria-label="Fontes">📚</button>
+      </header>
+
+      <main class="screens" id="screens">
+
+        <!-- ═══════ TELA 1 · ABERTURA ═══════ -->
+        <section class="screen active" id="s-home">
+          <div class="home">
+            <div class="evchip">⚡ Maratona Tech 2026 · Dilemas Digitais</div>
+            <div class="logo">🎭</div>
+            <div class="wordmark" data-t="DESMASCARA">DESMASCARA</div>
+            <p class="tw"><span id="tw"></span><span class="caret">&nbsp;</span></p>
+            <div class="homestats">
+              <span><b>5 passos</b> criam um fake</span>
+              <span><b>1 clique</b> espalha</span>
+              <span><b>4 sinais</b> denunciam</span>
+            </div>
+            <div class="homebtns">
+              <button class="btn shine wide" onclick="go('problema')">Começar →</button>
+              <button class="btn ghost wide" onclick="go('quiz')">🎮 Ir direto para o quiz</button>
+            </div>
+            <p class="mini" style="margin-top:16px">Conteúdo educativo com fontes verificáveis.<br>Toque em 📚 a qualquer momento para ver as fontes.</p>
+          </div>
+        </section>
+
+        <!-- ═══════ TELA 2 · QUAL É O PROBLEMA? ═══════ -->
+        <section class="screen" id="s-problema">
+          <h3 class="sec">Qual é o <em>problema</em>? 🧐</h3>
+          <div class="card def">
+            <div class="scan"></div>
+            <p style="font-size:13px;line-height:1.65"><b>Deepfake</b> é um vídeo, áudio ou imagem criado por <b>inteligência artificial</b> que troca ou gera rostos, vozes e movimentos de uma pessoa — parecendo real, mas sendo falso.</p>
+            <div style="margin-top:9px"><span class="badge bg-green">✔ Definição conferida no verbete “Deepfake” · Wikipédia (pt/en)</span></div>
+          </div>
+
+          <h3 class="sec">Montagem comum <em>×</em> deepfake</h3>
+          <div class="vs">
+            <div class="card rv"><h4>✂️ Montagem comum</h4><p>Cola e edita material que já existe (ex.: recortar um rosto numa foto). Costuma deixar bordas e erros visíveis.</p></div>
+            <div class="card rv" style="border-color:rgba(255,84,104,.4)"><h4>🤖 Deepfake com IA</h4><p>A IA “aprende” com milhares de fotos/áudios da pessoa e <b>gera conteúdo novo</b>, com movimentos e voz convincentes. Muito mais difícil de perceber.</p></div>
+          </div>
+
+          <h3 class="sec">Casos que <em>viralizaram</em> 📰</h3>
+          <p class="lead rv" style="margin-bottom:10px">Todos resumidos a partir de fontes públicas — valores conforme apuração da imprensa à época.</p>
+          <div class="cases">
+            <div class="card rv"><div class="cico">🎖️</div><div><h4>“Soldados se rendendo?” (2022)</h4><p>No início da guerra na Ucrânia, um vídeo falso tentou mostrar militares ucranianos “se rendendo”. Foi desmentido rapidamente, inclusive por autoridades do país.</p><span class="badge bg-blue">Wikipédia + agências de notícia</span></div></div>
+            <div class="card rv"><div class="cico">📞</div><div><h4>A voz do chefe (2019)</h4><p>Criminosos clonaram por telefone a voz de um executivo e convenceram uma empresa a transferir cerca de <b>US$ 243 mil</b> (valor divulgado pela imprensa).</p><span class="badge bg-blue">Imprensa internacional (ex.: Wall Street Journal)</span></div></div>
+            <div class="card rv"><div class="cico">🗳️</div><div><h4>“Não vote!” (EUA, 2024)</h4><p>Na prévia de New Hampshire, uma ligação robótica com voz clonada do presidente dizia para eleitores <b>não votarem</b>. O responsável foi identificado e punido pelas autoridades.</p><span class="badge bg-blue">Imprensa + autoridade de telecom (FCC)</span></div></div>
+            <div class="card rv"><div class="cico">🎤</div><div><h4>Famosa alvo de imagens falsas (2024)</h4><p>Imagens íntimas falsas geradas por IA da cantora Taylor Swift se espalharam nas redes e reacenderam o debate global por leis contra deepfakes não consensuais.</p><span class="badge bg-blue">Imprensa internacional</span></div></div>
+            <div class="card rv"><div class="cico">💸</div><div><h4>Reunião de vídeo falsa (Hong Kong, 2024)</h4><p>Um funcionário transferiu cerca de <b>US$ 25 milhões</b> após uma videochamada em que colegas — inclusive o diretor financeiro — eram deepfakes.</p><span class="badge bg-blue">Imprensa internacional (ex.: CNN)</span></div></div>
+            <div class="card rv"><div class="cico">🇧🇷</div><div><h4>Voz clonada no Zap (Brasil)</h4><p>Golpes com áudio clonado de parentes e amigos pedindo Pix se multiplicaram no país — a IA deixa a voz quase idêntica à original.</p><span class="badge bg-blue">Imprensa brasileira</span></div></div>
+          </div>
+
+          <h3 class="sec">Comparador <em>original × deepfake</em> 🔬</h3>
+          <div class="cmp rv" id="cmp" tabindex="0" aria-label="Comparador: arraste para comparar original e deepfake">
+            <div class="cmp-layer">
+              <svg viewBox="0 0 220 198" role="img" aria-label="Retrato original (ilustração)">
+                <defs><linearGradient id="bgO" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#233069"/><stop offset="1" stop-color="#141a3f"/></linearGradient></defs>
+                <rect width="220" height="198" fill="url(#bgO)"/>
+                <circle cx="60" cy="40" r="26" fill="rgba(90,169,255,.12)"/>
+                <path d="M40 198 q20 -34 70 -34 q50 0 70 34 z" fill="#4a5fd0"/>
+                <circle cx="110" cy="92" r="46" fill="#f0c49b"/>
+                <path d="M64 92 a46 46 0 0 1 92 0 l-6 -26 q-40 -26 -80 0 z" fill="#2e2a45"/>
+                <ellipse cx="93" cy="92" rx="5.5" ry="6.5" fill="#22223a"/><ellipse cx="127" cy="92" rx="5.5" ry="6.5" fill="#22223a"/>
+                <path d="M85 80 q8 -5 16 0" stroke="#2e2a45" stroke-width="3" fill="none" stroke-linecap="round"/>
+                <path d="M119 80 q8 -5 16 0" stroke="#2e2a45" stroke-width="3" fill="none" stroke-linecap="round"/>
+                <path d="M108 98 q3 8 -2 12" stroke="#d9a878" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                <path d="M96 122 q14 10 28 0" stroke="#a05a48" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+                <circle cx="86" cy="108" r="6" fill="rgba(255,120,120,.22)"/><circle cx="134" cy="108" r="6" fill="rgba(255,120,120,.22)"/>
+              </svg>
+            </div>
+            <div class="cmp-layer cmp-fake">
+              <svg viewBox="0 0 220 198" role="img" aria-label="Retrato deepfake com falhas marcadas (ilustração)">
+                <defs><linearGradient id="bgF" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3d2050"/><stop offset="1" stop-color="#1d1233"/></linearGradient></defs>
+                <rect width="220" height="198" fill="url(#bgF)"/>
+                <circle cx="60" cy="40" r="26" fill="rgba(90,169,255,.07)"/>
+                <path d="M40 198 q20 -34 70 -34 q50 0 70 34 z" fill="#4a5fd0"/>
+                <circle cx="110" cy="92" r="46" fill="#f0c49b"/>
+                <circle cx="110" cy="92" r="46" fill="rgba(255,255,255,.10)"/>
+                <path d="M149 62 q16 26 -2 58" stroke="rgba(255,176,32,.9)" stroke-width="2" stroke-dasharray="4 4" fill="none"/>
+                <path d="M64 92 a46 46 0 0 1 92 0 l-6 -26 q-40 -26 -80 0 z" fill="#2e2a45"/>
+                <ellipse cx="93" cy="92" rx="5.5" ry="8" fill="#22223a"/><ellipse cx="127" cy="92" rx="5.5" ry="4.5" fill="#22223a"/>
+                <path d="M85 80 q8 -5 16 0" stroke="#2e2a45" stroke-width="3" fill="none" stroke-linecap="round"/>
+                <path d="M119 78 q8 -6 16 -2" stroke="#2e2a45" stroke-width="3" fill="none" stroke-linecap="round"/>
+                <path d="M108 98 q3 8 -2 12" stroke="#d9a878" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                <path d="M97 126 q13 3 27 -4" stroke="#a05a48" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+                <rect x="52" y="70" width="26" height="3" fill="rgba(63,208,210,.75)"/>
+                <rect x="140" y="118" width="34" height="3" fill="rgba(255,84,104,.75)"/>
+                <rect x="70" y="152" width="40" height="3" fill="rgba(63,208,210,.6)"/>
+                <g font-family="Sora" font-weight="700" font-size="10" text-anchor="middle">
+                  <circle cx="112" cy="127" r="9" fill="#ff5468"/><text x="112" y="130.5" fill="#fff">1</text>
+                  <circle cx="147" cy="74" r="9" fill="#ff5468"/><text x="147" y="77.5" fill="#fff">2</text>
+                  <circle cx="129" cy="98" r="9" fill="#ff5468"/><text x="129" y="101.5" fill="#fff">3</text>
+                  <circle cx="151" cy="105" r="9" fill="#ff5468"/><text x="151" y="108.5" fill="#fff">4</text>
+                </g>
+              </svg>
+            </div>
+            <span class="cmp-tag o">ORIGINAL</span><span class="cmp-tag f">DEEPFAKE</span>
+            <div class="cmp-handle"></div>
+          </div>
+          <div class="legend rv">
+            <div><span class="dotn">1</span> Boca fora de sincronia com o áudio</div>
+            <div><span class="dotn">2</span> Borda do rosto com falha de encaixe</div>
+            <div><span class="dotn">3</span> Piscar e expressão não naturais</div>
+            <div><span class="dotn">4</span> Pele “plastificada” / iluminação incoerente</div>
+          </div>
+          <p class="mini rv" style="margin-top:8px">⚠️ Ilustração didática: em deepfakes reais, os sinais podem ser bem mais sutis.</p>
+        </section>
+
+        <!-- ═══════ TELA 3 · COMO ACONTECE? ═══════ -->
+        <section class="screen" id="s-como">
+          <h3 class="sec">Como o deepfake <em>acontece</em>? ⚙️</h3>
+          <p class="lead rv" style="margin-bottom:14px">Do perfil público ao golpe: siga o caminho em 5 passos.</p>
+          <div class="flow">
+            <div class="step rv"><div class="snum">📥</div><div class="scard"><b>1 · COLETA DE DADOS</b><p>O golpista reúne fotos, vídeos e áudios da vítima em redes sociais, lives e entrevistas.</p></div></div>
+            <div class="farrow">▼</div>
+            <div class="step rv"><div class="snum">🧠</div><div class="scard"><b>2 · TREINAMENTO DA IA</b><p>Um programa de IA “estuda” o rosto e a voz da pessoa e aprende seus padrões.</p></div></div>
+            <div class="farrow">▼</div>
+            <div class="step rv"><div class="snum">🎭</div><div class="scard"><b>3 · GERAÇÃO DO DEEPFAKE</b><p>A IA cria um vídeo ou áudio novo e falso, encaixando rosto e voz em qualquer contexto.</p></div></div>
+            <div class="farrow">▼</div>
+            <div class="step rv"><div class="snum">📡</div><div class="scard"><b>4 · DISTRIBUIÇÃO</b><p>O conteúdo é espalhado por redes sociais, WhatsApp, e-mail ou ligação, se passando por real.</p></div></div>
+            <div class="farrow">▼</div>
+            <div class="step rv"><div class="snum">💥</div><div class="scard"><b>5 · AÇÃO DA VÍTIMA/PÚBLICO</b><p>Pessoas acreditam, compartilham, transferem dinheiro ou tomam decisões baseadas na falsificação.</p></div></div>
+          </div>
+          <div class="alertline rv">⚠️ Hoje, ferramentas gratuitas na internet fazem as etapas 1 a 3 em <b>poucos minutos</b> — por isso desconfiar rápido é tão importante.</div>
+        </section>
+
+        <!-- ═══════ TELA 4 · QUAIS SÃO OS RISCOS? ═══════ -->
+        <section class="screen" id="s-riscos">
+          <h3 class="sec">Quais são os <em>riscos</em>? ⚠️</h3>
+          <div class="grid2">
+            <div class="card who w-red rv"><span class="e">🧑‍🎓</span><b>Pessoas comuns</b><p>Bullying, humilhação pública e golpes financeiros.</p></div>
+            <div class="card who w-amber rv"><span class="e">🏢</span><b>Empresas</b><p>Fraudes com voz e vídeo de diretores e executivos.</p></div>
+            <div class="card who w-blue rv"><span class="e">🏛️</span><b>Políticos e eleições</b><p>Desinformação em massa em períodos eleitorais.</p></div>
+            <div class="card who w-purple rv"><span class="e">⭐</span><b>Famosos e influenciadores</b><p>Imagens íntimas falsas e chantagem.</p></div>
+          </div>
+
+          <h3 class="sec">Consequências 📉</h3>
+          <div class="card rv">
+            <div class="consq"><span>💰</span><div><b>Perda financeira</b> — golpes aplicados por voz ou vídeo falsos.</div></div>
+            <div class="consq"><span>💔</span><div><b>Reputação e saúde mental</b> — a vítima carrega o dano de algo que nunca fez.</div></div>
+            <div class="consq"><span>📢</span><div><b>Fake news em escala</b> — manipulação da opinião pública.</div></div>
+            <div class="consq"><span>⚖️</span><div><b>Consequências legais</b> — criar e compartilhar deepfakes pode ser crime; no Brasil, condutas ligadas a deepfakes já podem ser enquadradas na lei, e o TSE tem regras específicas para eleições.</div></div>
+          </div>
+
+          <div class="ele rv">
+            <h4>🗳️ Deepfakes × Eleições</h4>
+            <div class="sub">Por que a política é o alvo mais perigoso</div>
+            <div class="eitem">🎤 <div><b>Discurso inventado:</b> vídeo ou áudio em que um candidato “diz” algo que nunca disse, para difamá-lo ou simular apoio.</div></div>
+            <div class="eitem">⏰ <div><b>Ataque de última hora:</b> fake divulgado perto da votação, sem tempo hábil para desmentir.</div></div>
+            <div class="eitem">🖥️ <div><b>“Fraude” fake nas urnas:</b> vídeos falsos sugerindo fraude na votação/apuração para minar a confiança nas instituições.</div></div>
+            <div class="eitem">🔊 <div><b>Orientação de voto falsa:</b> áudios clonados mandando votar no dia, horário ou local errado — ou pedindo para não votar (já aconteceu na prévia de New Hampshire, EUA, 2024).</div></div>
+            <div class="alertline" style="margin-top:4px">Nas eleições municipais de <b>2024</b>, o TSE aprovou regras que <b>proíbem o uso de deepfakes em campanhas</b> — quem desrespeitar pode ser punido pela Justiça Eleitoral. Consulte a redação atualizada em tse.jus.br.</div>
+            <p class="mini" style="margin-top:10px;color:#f4e9d4">Na política, o alvo não é uma pessoa: é a <b>opinião pública em massa</b>. Uma mentira bem-feita pode influenciar o resultado de uma eleição.</p>
+          </div>
+        </section>
+
+        <!-- ═══════ TELA 5 · COMO EVITAR E COMBATER ═══════ -->
+        <section class="screen" id="s-defesa">
+          <h3 class="sec">Como <em>evitar</em> e <em>combater</em>? 🛡️</h3>
+          <div style="margin-bottom:6px"><span class="badge bg-green">🟢 PREVENIR</span></div>
+          <div class="list">
+            <div class="item g rv"><span class="ic">🚨</span><div><b>Desconfie da urgência</b> — pedidos de dinheiro ou dados por vídeo/áudio “para agora”.</div></div>
+            <div class="item g rv"><span class="ic">👀</span><div><b>Procure os sinais</b> — piscar estranho, boca fora de sincronia, iluminação incoerente, voz robótica ou com cortes.</div></div>
+            <div class="item g rv"><span class="ic">🔁</span><div><b>Confirme por outro canal</b> — ligue você mesmo para a pessoa; cheque o perfil oficial.</div></div>
+            <div class="item g rv"><span class="ic">🔒</span><div><b>Feche a privacidade das redes</b> — menos fotos e áudios públicos = menos “combustível” para a IA.</div></div>
+            <div class="item g rv"><span class="ic">🔎</span><div><b>Use verificação</b> — busca reversa de imagem e agências de checagem: Lupa, Aos Fatos, Comprova.</div></div>
+            <div class="item g rv"><span class="ic">🗳️</span><div><b>Em eleição:</b> só compartilhe vídeo/áudio político depois que uma agência de checagem ou o TSE confirmar.</div></div>
+          </div>
+
+          <div style="margin:16px 0 6px"><span class="badge bg-red">🔴 COMBATER</span></div>
+          <div class="list">
+            <div class="item r rv"><span class="ic">🚩</span><div><b>Denuncie na plataforma</b> — Instagram, TikTok e YouTube têm botão de denúncia por conteúdo enganoso.</div></div>
+            <div class="item r rv"><span class="ic">📝</span><div><b>Registre Boletim de Ocorrência</b> em caso de golpe ou dano à imagem.</div></div>
+            <div class="item r rv"><span class="ic">🛡️</span><div><b>SaferNet Brasil</b> — canal nacional de denúncia de crimes digitais (denuncie.org.br).</div></div>
+            <div class="item r rv"><span class="ic">🗳️</span><div><b>Caso eleitoral?</b> Use o app <b>Pardal</b> ou procure a Justiça Eleitoral (TSE).</div></div>
+            <div class="item r rv"><span class="ic">📣</span><div><b>Espalhe o alerta, não o conteúdo falso</b> — avise sua rede para proteger os outros.</div></div>
+          </div>
+
+          <h3 class="sec">Treine agora 🎮</h3>
+          <div class="list">
+            <button class="btn wide shine" onclick="go('quiz')">🎯 Quiz: Real ou Fake?</button>
+            <button class="btn ghost wide" onclick="go('sim')">🤖 Simulador: isso é golpe?</button>
+            <button class="btn ghost wide" onclick="go('cmp')">🔬 Comparador original × deepfake</button>
+          </div>
+        </section>
+
+        <!-- ═══════ QUIZ ═══════ -->
+        <section class="screen" id="s-quiz">
+          <h3 class="sec">Quiz <em>Real ou Fake</em>? 🎯</h3>
+          <p class="lead" style="margin-bottom:12px">Analise cada caso e dê seu veredito. Depois da resposta, veja o porquê.</p>
+          <div id="quizBox">
+            <div class="qtop"><span id="qCount">CASO 1/5</span><div class="qbar"><i id="qFill"></i></div></div>
+            <div class="qcard" id="qCard"></div>
+            <div class="qbtns">
+              <button class="btn real" id="btnReal">✅ REAL</button>
+              <button class="btn fakeb" id="btnFake">❌ FAKE</button>
+            </div>
+            <div class="qwhy" id="qWhy" hidden></div>
+            <button class="btn wide" id="qNext" hidden>Próximo caso →</button>
+          </div>
+          <div id="quizEnd" hidden>
+            <div class="card endcard">
+              <div style="font-size:44px" id="endEmoji">🕵️</div>
+              <div class="big" id="endScore">0/5</div>
+              <h4 id="endRank"></h4>
+              <p class="lead" id="endMsg" style="margin-bottom:16px"></p>
+              <button class="btn wide" onclick="quizStart()">🔁 Jogar de novo</button>
+              <button class="btn ghost wide" style="margin-top:8px" onclick="go('defesa')">← Voltar para a defesa</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ═══════ SIMULADOR ═══════ -->
+        <section class="screen" id="s-sim">
+          <h3 class="sec">Simulador <em>é golpe?</em> 🤖</h3>
+          <div class="chat" id="chat"></div>
+          <div class="chips">
+            <button class="chip" onclick="simSay('Meu chefe me chamou numa videochamada e pediu um Pix urgente para fechar um contrato.')">👔 Chefe pediu Pix</button>
+            <button class="chip" onclick="simSay('Recebi um áudio de um famoso pedindo voto para um candidato.')">🗳️ Áudio político</button>
+            <button class="chip" onclick="simSay('Meu primo mandou um áudio pedindo dinheiro, mas a voz estava estranha e cortada.')">📲 Primo com voz estranha</button>
+            <button class="chip" onclick="simSay('Está circulando um vídeo dizendo que as urnas foram fraudadas.')">🖥️ Vídeo das urnas</button>
+          </div>
+          <div class="chatinput">
+            <input id="simIn" type="text" placeholder="Descreva a situação suspeita…" aria-label="Descreva a situação suspeita">
+            <button class="btn" id="simGo">Analisar</button>
+          </div>
+        </section>
+
+        <!-- ═══════ COMPARADOR (tela própria p/ acesso direto) ═══════ -->
+        <section class="screen" id="s-cmp">
+          <h3 class="sec">Laboratório <em>anti-fake</em> 🔬</h3>
+          <p class="lead" style="margin-bottom:12px">Arraste a linha branca e procure os 4 sinais marcados no lado deepfake.</p>
+          <div class="cmp rv" id="cmp2"></div>
+          <div class="legend rv">
+            <div><span class="dotn">1</span> Boca fora de sincronia com o áudio</div>
+            <div><span class="dotn">2</span> Borda do rosto com falha de encaixe</div>
+            <div><span class="dotn">3</span> Piscar e expressão não naturais</div>
+            <div><span class="dotn">4</span> Pele “plastificada” / iluminação incoerente</div>
+          </div>
+          <p class="mini rv" style="margin-top:8px">⚠️ Ilustração didática — na vida real os sinais podem ser bem mais sutis. Na dúvida: confirme por outro canal e cheque em Lupa, Aos Fatos ou Comprova.</p>
+          <button class="btn ghost wide" style="margin-top:14px" onclick="go('problema')">← Voltar para “O Problema”</button>
+        </section>
+
+        <!-- ═══════ FONTES ═══════ -->
+        <section class="screen" id="s-fontes">
+          <h3 class="sec">Fontes & <em>créditos</em> 📚</h3>
+          <div class="src">
+            <div class="card rv"><h4>📚 Wikipédia (pt e en) — verbete “Deepfake”</h4><p>Ponto de partida para definição, histórico e casos citados. Conforme a regra anti-alucinação, dados seguem para conferência nas fontes primárias e agências de checagem.</p></div>
+            <div class="card rv"><h4>🔎 Agências de fact-checking</h4><p>Lupa (agencialupa.com.br) · Aos Fatos (aosfatos.org) · Comprova (projetocomprova.com.br) — referência para checagem de conteúdos suspeitos.</p></div>
+            <div class="card rv"><h4>🗳️ TSE — tse.jus.br</h4><p>Regras eleitorais sobre deepfakes em campanhas (eleições municipais de 2024) e app Pardal para denúncias. Consulte a redação atualizada das normas no site oficial.</p></div>
+            <div class="card rv"><h4>🛡️ SaferNet Brasil</h4><p>safernet.org.br / denuncie.org.br — canal de denúncias de crimes digitais no Brasil.</p></div>
+            <div class="card rv"><h4>📰 Casos reais citados (valores conforme a imprensa à época)</h4>
+              <p>• Vídeo falso de rendição na guerra da Ucrânia (2022) — desmentido por autoridades e agências.<br>
+              • Clonagem de voz de executivo na Europa (2019) — cobertura internacional (ex.: The Wall Street Journal).<br>
+              • Robocall com voz clonada na prévia de New Hampshire, EUA (2024) — apurado por autoridades de telecomunicações.<br>
+              • Imagens sintéticas não consensuais da cantora Taylor Swift (2024) — repercussão global e debate legislativo.<br>
+              • Videochamada falsa em Hong Kong (2024) — cobertura internacional (ex.: CNN).<br>
+              • Golpes com voz clonado no Brasil — imprensa brasileira.</p></div>
+          </div>
+          <div class="rulebox rv">⚠️ <b>Regra do projeto:</b> nenhum dado foi inventado. Quando a confirmação exata não foi possível, usamos linguagem genérica (“cerca de”, “segundo a imprensa”). Este protótipo é educativo — para detalhes, consulte as fontes originais.</div>
+          <p class="mini" style="margin-top:14px;text-align:center">Protótipo educativo · Maratona Tech 2026 · Fase 1: Dilemas Digitais<br>Equipe: ______________________</p>
+        </section>
+
+      </main>
+
+      <!-- barra inferior -->
+      <nav class="tabbar">
+        <button class="tab on" data-t="home"><span class="ti">🏠</span>Início</button>
+        <button class="tab" data-t="problema"><span class="ti">🧐</span>Problema</button>
+        <button class="tab" data-t="como"><span class="ti">⚙️</span>Como</button>
+        <button class="tab" data-t="riscos"><span class="ti">⚠️</span>Riscos</button>
+        <button class="tab" data-t="defesa"><span class="ti">🛡️</span>Defesa</button>
+      </nav>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================= navegação ================= */
+const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+const TABS=['home','problema','como','riscos','defesa'];
+const TITLES={home:'Início',problema:'O Problema',como:'Como Acontece',riscos:'Riscos',defesa:'Defesa',quiz:'Quiz Real ou Fake',sim:'Simulador',cmp:'Laboratório',fontes:'Fontes'};
+let prevTab='home';
+function go(id){
+  if(TABS.includes(id)) prevTab=id;
+  $$('.screen').forEach(s=>s.classList.toggle('active', s.id==='s-'+id));
+  $('#screens').scrollTop=0;
+  $('#hTitle').textContent=TITLES[id];
+  $('#hBack').style.visibility=(TABS.includes(id)&&id!=='home')?'hidden':'visible';
+  $$('.tab').forEach(b=>b.classList.toggle('on',b.dataset.t===(TABS.includes(id)?id:prevTab)));
+  if(id==='home') typeTag();
+}
+$$('.tab').forEach(b=>b.addEventListener('click',()=>go(b.dataset.t)));
+$('#hBack').addEventListener('click',()=>go(prevTab));
+$('#hSrc').addEventListener('click',()=>go('fontes'));
+document.addEventListener('keydown',e=>{
+  if(/INPUT|TEXTAREA/.test(document.activeElement.tagName))return;
+  const i=TABS.indexOf(prevTab);
+  if(e.key==='ArrowRight'&&i<TABS.length-1)go(TABS[i+1]);
+  if(e.key==='ArrowLeft'&&i>0)go(TABS[i-1]);
+});
+/* revelação ao rolar */
+const io=new IntersectionObserver(es=>es.forEach(x=>x.isIntersecting&&x.target.classList.add('vis')),{root:$('#screens'),threshold:.15});
+$$('.rv').forEach(el=>io.observe(el));
+/* ================= abertura: typewriter ================= */
+let twTimer=null;
+function typeTag(){
+  const el=$('#tw'), txt='Nem tudo que você vê é real.';
+  clearInterval(twTimer); el.textContent=''; let i=0;
+  twTimer=setInterval(()=>{el.textContent=txt.slice(0,++i); if(i>=txt.length)clearInterval(twTimer);},42);
+}
+typeTag();
+/* ================= comparador (slider) ================= */
+function initCmp(el){
+  if(!el)return;
+  const set=x=>{x=Math.max(8,Math.min(92,x)); el.style.setProperty('--x',x+'%'); el._x=x;};
+  el._x=56; set(56);
+  const move=e=>{const r=el.getBoundingClientRect(); set((e.clientX-r.left)/r.width*100);};
+  el.addEventListener('pointerdown',e=>{el.setPointerCapture(e.pointerId); move(e);
+    const mv=ev=>move(ev), up=()=>{el.removeEventListener('pointermove',mv);el.removeEventListener('pointerup',up);};
+    el.addEventListener('pointermove',mv); el.addEventListener('pointerup',up);});
+  el.addEventListener('keydown',e=>{
+    if(e.key==='ArrowLeft'){set(el._x-4);e.preventDefault();}
+    if(e.key==='ArrowRight'){set(el._x+4);e.preventDefault();}
+  });
+}
+initCmp($('#cmp'));
+/* duplica o comparador na tela própria */
+const cmpA=$('#cmp'); if(cmpA){const c2=$('#cmp2'); c2.innerHTML=cmpA.innerHTML; initCmp(c2);}
+/* ================= quiz ================= */
+const QUIZ=[
+ {i:'🎭',t:'Vídeo viral: um político anuncia uma medida absurda. A boca não acompanha o áudio e a voz parece metálica.',a:'fake',w:'Boca fora de sincronia + voz robótica são sinais clássicos de deepfake. Antes de compartilhar, procure a informação em fontes oficiais.'},
+ {i:'🏛️',t:'Nota publicada no site oficial do TSE (tse.jus.br) explicando as regras das eleições.',a:'real',w:'Sites oficiais do governo (final .jus.br) são fontes primárias confiáveis para informação eleitoral.'},
+ {i:'📲',t:'Áudio no WhatsApp: seu “primo” pede um Pix urgente, mas a voz está meio estranha e cortada.',a:'fake',w:'Padrão clássico de golpe: voz clonada + urgência + pedido de dinheiro. Ligue você mesmo para a pessoa antes de qualquer Pix.'},
+ {i:'🗳️',t:'Vídeo afirma que urnas foram fraudadas, mas nenhuma agência de checagem nem veículo confiável confirmou.',a:'fake',w:'Sem confirmação de fonte confiável, trate como falso. O TSE e agências como Lupa, Aos Fatos e Comprova checam esse tipo de boato com frequência.'},
+ {i:'📺',t:'Live no canal verificado de uma grande emissora: imagem nítida, rosto consistente e sem falhas.',a:'real',w:'Canal oficial + imagem consistente = maior confiabilidade. Ainda assim, para decisões importantes, confirme em mais de uma fonte.'}
+];
+let qi=0,qScore=0,locked=false;
+function quizStart(){qi=0;qScore=0;$('#quizEnd').hidden=true;$('#quizBox').hidden=false;locked=false;renderQ();}
+function renderQ(){
+  const q=QUIZ[qi]; locked=false;
+  $('#qCount').textContent=`CASO ${qi+1}/${QUIZ.length}`;
+  $('#qFill').style.width=(qi/QUIZ.length*100)+'%';
+  $('#qCard').innerHTML=`<div class="qi">${q.i}</div><p>${q.t}</p>`;
+  $('#qWhy').hidden=true; $('#qNext').hidden=true;
+  $('#btnReal').disabled=false; $('#btnFake').disabled=false;
+}
+function answer(v){
+  if(locked)return; locked=true;
+  const q=QUIZ[qi], ok=(v===q.a), why=$('#qWhy');
+  if(ok)qScore++;
+  why.hidden=false; why.className='qwhy '+(ok?'ok':'err');
+  why.innerHTML=(ok?'✅ Boa! ':'🚨 Cuidado! ')+q.w;
+  $('#btnReal').disabled=true; $('#btnFake').disabled=true;
+  if(!ok)$('#qCard').classList.add('shake');
+  setTimeout(()=>$('#qCard').classList.remove('shake'),450);
+  $('#qFill').style.width=((qi+1)/QUIZ.length*100)+'%';
+  const nx=$('#qNext'); nx.hidden=false;
+  nx.textContent=(qi<QUIZ.length-1)?'Próximo caso →':'Ver resultado 🏁';
+}
+$('#btnReal').addEventListener('click',()=>answer('real'));
+$('#btnFake').addEventListener('click',()=>answer('fake'));
+$('#qNext').addEventListener('click',()=>{
+  if(qi<QUIZ.length-1){qi++;renderQ();}
+  else{
+    $('#quizBox').hidden=true; $('#quizEnd').hidden=false;
+    $('#endScore').textContent=qScore+'/'+QUIZ.length;
+    let e,r,m;
+    if(qScore===5){e='🕵️';r='Detetive Anti-Deepfake!';m='Olho treinado: você pegou todos os sinais. Agora ensine sua rede a fazer o mesmo.';}
+    else if(qScore>=3){e='👍';r='No caminho certo!';m='Você já percebe vários sinais. Revise o comparador e a tela de prevenção para ficar expert.';}
+    else{e='🚨';r='Hora de treinar o olhar!';m='Sem pânico: volte nas telas “O Problema” e “Defesa” e refaça o quiz. Em minutos você desmascara qualquer fake.';}
+    $('#endEmoji').textContent=e;$('#endRank').textContent=r;$('#endMsg').textContent=m;
+  }
+});
+quizStart();
+/* ================= simulador ================= */
+const RULES=[
+ {k:['nude','íntim','intim','chantag','sextors','vazou'],lvl:'RISCO GRAVE',c:'#ff5468',r:'Isso é sério. Não compartilhe nada, salve as provas (prints, links) e denuncie: <b>SaferNet (denuncie.org.br)</b> + <b>Boletim de Ocorrência</b>. Se envolver eleição ou candidato, avise também a Justiça Eleitoral.'},
+ {k:['urna','eleiç','eleic','voto','candidat','tse','partido','polític','politic'],lvl:'CHECAGEM ELEITORAL',c:'#ffb020',r:'Conteúdo político viral merece verificação antes do compartilhamento. Procure a informação no site do <b>TSE</b> e nas agências <b>Lupa, Aos Fatos e Comprova</b>. Se for falso, denuncie no app <b>Pardal</b> e na própria plataforma.'},
+ {k:['chefe','empresa','diretor','videochamada','reunião','contrato'],lvl:'ALTO RISCO',c:'#ff5468',r:'Golpe corporativo clássico — já houve casos reais de videochamadas 100% falsas geradas por IA. <b>Confirme por outro canal oficial</b> (telefone conhecido, e-mail corporativo) antes de qualquer transferência e avise o setor de segurança da empresa.'},
+ {k:['pix','dinheiro','transfer','pagar','urgente','empréstimo','empresta'],lvl:'ALTO RISCO',c:'#ff5468',r:'Urgência + pedido de dinheiro = sinal vermelho. Vozes podem ser clonadas em segundos. <b>Ligue você mesmo</b> para a pessoa pelo número que você já conhece. Nunca transfira antes de confirmar.'},
+ {k:['voz','áudio','audio','robót','metálic','cortad','estranh','sincronia','piscar'],lvl:'SINAIS DE DEEPFAKE',c:'#ffb020',r:'Voz cortada/robótica e falhas no rosto são indícios de falsificação por IA. Não compartilhe: faça busca reversa, cheque agências de fact-checking e denuncie o conteúdo na plataforma.'},
+ {k:['sorteio','prêmio','premio','ganhei','herança','cripto','investimento'],lvl:'PROVÁVEL GOLPE',c:'#ffb020',r:'Promessa fácil demais costuma ser isca. Verifique o perfil oficial (selo, seguidores, histórico) e nunca informe dados ou códigos de verificação.'}
+];
+const DEFAULT_R={lvl:'DESCONFIE POR PRINCÍPIO',c:'#5aa9ff',r:'Não consegui identificar um padrão específico, mas a regra de ouro vale: <b>confirme por outro canal</b>, procure em fontes oficiais e de checagem (Lupa, Aos Fatos, Comprova, TSE) e não compartilhe antes de ter certeza. 👀'};
+function botSay(html){
+  const c=$('#chat'), b=document.createElement('div');
+  b.className='bub bot'; b.innerHTML=html; c.appendChild(b); c.scrollTop=c.scrollHeight;
+}
+function userSay(t){
+  const c=$('#chat'), b=document.createElement('div');
+  b.className='bub user'; b.textContent=t; c.appendChild(b); c.scrollTop=c.scrollHeight;
+}
+function analyze(t){
+  const s=t.toLowerCase();
+  const hit=RULES.find(r=>r.k.some(k=>s.includes(k)))||DEFAULT_R;
+  botSay(`<span class="lvl" style="background:${hit.c}22;color:${hit.c};border:1px solid ${hit.c}66">⚠ ${hit.lvl}</span><br>${hit.r}`);
+}
+function simSay(t){userSay(t);setTimeout(()=>analyze(t),350);}
+$('#simGo').addEventListener('click',()=>{const i=$('#simIn');if(i.value.trim()){const v=i.value.trim();i.value='';userSay(v);setTimeout(()=>analyze(v),350);}});
+$('#simIn').addEventListener('keydown',e=>{if(e.key==='Enter')$('#simGo').click();});
+botSay('Oi! Eu sou o <b>DesmascaraBot</b> 🤖. Me conte uma situação suspeita (ou toque num cenário acima) que eu analiso os sinais de deepfake ou golpe.');
+</script>
+</body>
+</html>
