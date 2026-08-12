@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Empacotador DESMASCARA</title>
+<style>
+ body{font-family:system-ui;background:#06071a;color:#eef0ff;display:grid;place-items:center;min-height:100vh;padding:20px}
+ .box{max-width:560px;width:100%;background:#141840;border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:26px}
+ h1{font-size:18px;margin-bottom:6px}
+ p{color:#9aa0c7;font-size:13px;line-height:1.6}
+ label{display:block;margin:16px 0 6px;font-size:12px;font-weight:700}
+ input[type=file]{font-size:12px;color:#9aa0c7}
+ button{margin-top:18px;width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#5aa9ff,#8b5cf6);color:#fff;font-weight:700;cursor:pointer}
+ button:disabled{opacity:.4;cursor:not-allowed}
+ #status{margin-top:12px;font-size:12px;color:#2ee59d;min-height:18px}
+</style>
+</head>
+<body>
+<div class="box">
+ <h1>🎭 Empacotador — imagens dentro do HTML</h1>
+ <p>Gera um <b>desmascara-standalone.html</b> único, com as 4 fotos embutidas. Funciona em qualquer celular/PC, até sem internet.</p>
+ <label>1. Arquivo do app (desmascara.html)</label>
+ <input type="file" id="htmlFile" accept=".html,.htm">
+ <label>2. As 4 imagens (mj-original.jpg, mj-deepfake.jpg, ts-1.jpg, ts-2.jpg)</label>
+ <input type="file" id="imgFiles" accept="image/*" multiple>
+ <button id="go" disabled>⬇️ Gerar HTML com imagens embutidas</button>
+ <div id="status"></div>
+</div>
+<script>
+let html='', imgs={};
+const $=s=>document.querySelector(s);
+const NAMES=['mj-original.jpg','mj-deepfake.jpg','ts-1.jpg','ts-2.jpg'];
+const check=()=>{$('#go').disabled=!(html && NAMES.every(n=>imgs[n]));};
+function status(){
+  const ok=NAMES.filter(n=>imgs[n]).length;
+  $('#status').textContent=(html?'✔ HTML carregado · ':'')+`✔ ${ok}/4 imagens reconhecidas`;
+}
+$('#htmlFile').addEventListener('change',e=>{
+  const f=e.target.files[0]; if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{html=r.result; status(); check();};
+  r.readAsText(f);
+});
+$('#imgFiles').addEventListener('change',e=>{
+  [...e.target.files].forEach(f=>{
+    const r=new FileReader();
+    r.onload=()=>{imgs[f.name]=r.result; status(); check();};
+    r.readAsDataURL(f);
+  });
+});
+$('#go').addEventListener('click',()=>{
+  let out=html;
+  for(const [name,url] of Object.entries(imgs)){
+    out=out.split(name).join(url); /* troca todas as ocorrências do nome do arquivo pela data URI */
+  }
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([out],{type:'text/html'}));
+  a.download='desmascara-standalone.html';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  $('#status').textContent='✅ Gerado! Envie esse único HTML para qualquer pessoa.';
+});
+</script>
+</body>
+</html>
