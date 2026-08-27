@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>DESMASCARA — Real ou Fake? | Maratona Tech 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Sora:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════ TOKENS ══════════════════════════ */
+:root{
+  --bg:#05070f; --bg2:#080c1a;
+  --panel:rgba(13,19,38,.62); --panel2:rgba(17,24,48,.82);
+  --line:rgba(94,140,255,.16); --line-cy:rgba(34,211,238,.35);
+  --txt:#eaf0fb; --mut:#93a3c0; --dim:#5d6b87;
+  --blue:#3b82f6; --purple:#a855f7; --cyan:#22d3ee;
+  --green:#34d399; --red:#fb5670; --amber:#fbbf24;
+  --grad:linear-gradient(92deg,#2563eb,#8b5cf6 55%,#06b6d4);
+  --font-d:'Chakra Petch',sans-serif; --font-b:'Sora',sans-serif; --font-m:'JetBrains Mono',monospace;
+  --r-lg:22px; --r-md:16px; --r-sm:10px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg); color:var(--txt); font:400 16px/1.65 var(--font-b);
+  overflow-x:hidden; padding-top:66px; padding-bottom:118px;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:rgba(34,211,238,.35); color:#fff}
+::-webkit-scrollbar{width:10px;height:8px}
+::-webkit-scrollbar-track{background:#070a16}
+::-webkit-scrollbar-thumb{background:linear-gradient(#2563eb,#7c3aed);border-radius:8px}
+button{font-family:inherit;color:inherit;background:none;border:none;cursor:pointer}
+a{color:#7dd3fc;text-decoration:none}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:3px;border-radius:6px}
+
+/* ══════════════════════════ FUNDO / ATMOSFERA ══════════════════════════ */
+.bg-grid{
+  position:fixed;inset:0;z-index:-3;pointer-events:none;
+  background-image:linear-gradient(rgba(96,150,255,.055) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(96,150,255,.055) 1px,transparent 1px);
+  background-size:52px 52px;
+  -webkit-mask-image:radial-gradient(ellipse 90% 80% at 50% 20%,#000 30%,transparent 90%);
+          mask-image:radial-gradient(ellipse 90% 80% at 50% 20%,#000 30%,transparent 90%);
+  animation:gridDrift 40s linear infinite;
+}
+@keyframes gridDrift{to{background-position:52px 104px,104px 52px}}
+.orb{position:fixed;border-radius:50%;filter:blur(95px);z-index:-4;pointer-events:none;opacity:.5}
+.orb-b{width:560px;height:560px;left:-160px;top:-120px;background:radial-gradient(circle,#1d4ed8,transparent 65%);animation:orbFloat 16s ease-in-out infinite alternate}
+.orb-p{width:520px;height:520px;right:-140px;top:26%;background:radial-gradient(circle,#7c3aed,transparent 65%);animation:orbFloat 20s ease-in-out infinite alternate-reverse}
+.orb-c{width:460px;height:460px;left:28%;bottom:-180px;background:radial-gradient(circle,#0891b2,transparent 65%);opacity:.35;animation:orbFloat 24s ease-in-out infinite alternate}
+@keyframes orbFloat{from{transform:translate(0,0) scale(1)}to{transform:translate(60px,-50px) scale(1.12)}}
+.noise{
+  position:fixed;inset:0;z-index:60;pointer-events:none;opacity:.045;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ══════════════════════════ HEADER ══════════════════════════ */
+.top{
+  position:fixed;top:0;left:0;right:0;z-index:50;height:60px;
+  display:flex;align-items:center;gap:14px;padding:0 18px;
+  background:rgba(6,9,20,.72);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(120,150,255,.14);
+}
+.logo{display:flex;align-items:center;gap:10px}
+.logo svg{width:34px;height:34px;flex:none;filter:drop-shadow(0 0 8px rgba(34,211,238,.5))}
+.logo-name{font:700 1rem var(--font-d);letter-spacing:.14em;line-height:1}
+.logo-name small{display:block;font:600 .52rem var(--font-m);letter-spacing:.34em;color:var(--cyan);margin-top:3px}
+.dots{display:flex;gap:8px;margin:0 auto}
+.dot{width:9px;height:9px;border-radius:50%;background:rgba(140,160,220,.22);transition:.3s;position:relative}
+.dot:hover{background:rgba(34,211,238,.6)}
+.dot.on{background:var(--cyan);box-shadow:0 0 10px var(--cyan),0 0 22px rgba(34,211,238,.5);transform:scale(1.25)}
+.top-right{display:flex;align-items:center;gap:12px;margin-left:auto}
+.badge-fase{
+  font:600 .58rem var(--font-m);letter-spacing:.2em;color:#a5f3fc;
+  border:1px solid rgba(34,211,238,.35);border-radius:999px;padding:6px 12px;
+  background:rgba(34,211,238,.07);white-space:nowrap;
+}
+.led{display:inline-flex;align-items:center;gap:7px;font:600 .58rem var(--font-m);letter-spacing:.18em;color:var(--mut)}
+.led i{width:8px;height:8px;border-radius:50%;background:var(--green);animation:ledPulse 1.6s ease-in-out infinite}
+@keyframes ledPulse{0%,100%{box-shadow:0 0 0 0 rgba(52,211,153,.7)}50%{box-shadow:0 0 0 6px rgba(52,211,153,0)}}
+.scr-count{font:600 .62rem var(--font-m);letter-spacing:.16em;color:var(--dim)}
+
+/* ══════════════════════════ ESTRUTURA / TELAS ══════════════════════════ */
+main{max-width:1180px;margin:0 auto;padding:0 22px;position:relative;z-index:1}
+.screen{display:none}
+.screen.active{display:block;animation:screenIn .55s cubic-bezier(.2,.7,.2,1) both}
+@keyframes screenIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s cubic-bezier(.2,.7,.2,1);transition-delay:calc(var(--i,0)*60ms)}
+.reveal.in{opacity:1;transform:none}
+
+.eyebrow{
+  font:600 .68rem var(--font-m);letter-spacing:.3em;color:var(--cyan);
+  display:flex;align-items:center;gap:12px;margin-bottom:16px;text-transform:uppercase;
+}
+.eyebrow::before{content:"";width:34px;height:1px;background:linear-gradient(90deg,var(--cyan),transparent)}
+h2{font:700 clamp(1.7rem,3.6vw,2.6rem)/1.15 var(--font-d);letter-spacing:.01em;margin-bottom:14px}
+.lead{color:var(--mut);max-width:64ch;font-size:1.02rem}
+.grad-txt{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sec{padding:56px 0 10px}
+.sec + .sec{padding-top:64px}
+
+/* ══════════════════════════ CARDS / VIDRO ══════════════════════════ */
+.card{
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  box-shadow:0 18px 44px -24px rgba(0,0,0,.75),inset 0 1px 0 rgba(255,255,255,.05);
+  padding:24px;position:relative;transition:transform .35s cubic-bezier(.2,.7,.2,1),border-color .35s,box-shadow .35s;
+}
+.card:hover{
+  transform:translateY(-3px);border-color:var(--line-cy);
+  box-shadow:0 26px 60px -22px rgba(37,99,235,.4),0 0 0 1px rgba(34,211,238,.12),inset 0 1px 0 rgba(255,255,255,.07);
+}
+.card-hud::before,.card-hud::after{
+  content:"";position:absolute;width:18px;height:18px;border:2px solid rgba(34,211,238,.55);pointer-events:none;
+}
+.card-hud::before{top:-2px;left:-2px;border-right:0;border-bottom:0;border-radius:8px 0 0 0}
+.card-hud::after{bottom:-2px;right:-2px;border-left:0;border-top:0;border-radius:0 0 8px 0}
+.chip{
+  display:inline-flex;align-items:center;gap:7px;font:600 .72rem var(--font-m);letter-spacing:.08em;
+  color:#bfe9ff;background:rgba(34,211,238,.07);border:1px solid rgba(34,211,238,.28);
+  border-radius:999px;padding:7px 13px;white-space:nowrap;
+}
+.chip.purple{color:#e4ccff;background:rgba(168,85,247,.09);border-color:rgba(168,85,247,.32)}
+.chip.dim{color:var(--mut);background:rgba(120,150,255,.05);border-color:rgba(120,150,255,.2)}
+
+/* ══════════════════════════ BOTÕES ══════════════════════════ */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  font:700 .82rem var(--font-d);letter-spacing:.1em;text-transform:uppercase;
+  padding:15px 26px;border-radius:14px;transition:transform .25s,box-shadow .25s,filter .25s,border-color .25s,background .25s;
+  position:relative;overflow:hidden;
+}
+.btn-primary{
+  color:#fff;background:linear-gradient(92deg,#2563eb,#7c3aed 58%,#0891b2);background-size:150% 100%;
+  box-shadow:0 10px 30px -8px rgba(59,130,246,.55),0 4px 18px -6px rgba(124,58,237,.5),inset 0 1px 0 rgba(255,255,255,.28);
+}
+.btn-primary:hover{transform:translateY(-2px);filter:brightness(1.14);background-position:60% 0;
+  box-shadow:0 16px 40px -8px rgba(59,130,246,.7),0 6px 24px -6px rgba(34,211,238,.45),inset 0 1px 0 rgba(255,255,255,.3)}
+.btn-primary:active{transform:translateY(0) scale(.98)}
+.btn-ghost{
+  color:#a5f3fc;border:1px solid rgba(34,211,238,.45);background:rgba(34,211,238,.06);
+}
+.btn-ghost:hover{transform:translateY(-2px);background:rgba(34,211,238,.14);box-shadow:0 10px 28px -8px rgba(34,211,238,.5)}
+.btn-sm{padding:11px 18px;font-size:.72rem;border-radius:11px}
+.btn[disabled]{opacity:.45;cursor:not-allowed;transform:none!important;box-shadow:none!important}
+
+/* ══════════════════════════ HERO ══════════════════════════ */
+.hero{padding:52px 0 26px;display:grid;grid-template-columns:1.15fr .85fr;gap:44px;align-items:center;min-height:calc(100vh - 200px)}
+.hero-badge{margin-bottom:22px;display:flex;flex-wrap:wrap;gap:10px}
+.hero h1{
+  font:700 clamp(2.9rem,8vw,5.4rem)/0.98 var(--font-d);letter-spacing:.03em;
+  text-shadow:0 0 34px rgba(59,130,246,.55),0 0 90px rgba(124,58,237,.3);
+}
+.hero-sub{
+  font:700 clamp(1.1rem,2.6vw,1.7rem) var(--font-d);letter-spacing:.34em;margin:12px 0 20px;
+  background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 14px rgba(34,211,238,.35));
+}
+.hero p.lead{margin-bottom:24px}
+.hero-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:30px}
+.hero-cta{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+.kbd-hint{font:600 .64rem var(--font-m);letter-spacing:.12em;color:var(--dim);display:flex;align-items:center;gap:8px}
+.kbd-hint kbd{border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:2px 7px;background:rgba(255,255,255,.04);color:var(--mut)}
+
+/* HUD de detecção */
+.hud{border-radius:20px;padding:0;overflow:hidden}
+.hud-head{
+  display:flex;align-items:center;justify-content:space-between;padding:13px 18px;
+  border-bottom:1px solid rgba(34,211,238,.2);background:rgba(8,14,30,.6);
+  font:600 .62rem var(--font-m);letter-spacing:.24em;color:#7fd7ef;
+}
+.hud-head .rec{display:flex;align-items:center;gap:7px;color:#ff8fa3}
+.hud-head .rec i{width:7px;height:7px;border-radius:50%;background:#fb5670;animation:ledPulse 1.2s infinite}
+.hud-face{position:relative;aspect-ratio:300/300;background:radial-gradient(circle at 50% 42%,#0e1836,#070b18 78%)}
+.hud-face svg{width:100%;height:100%;display:block}
+.scanline{
+  position:absolute;left:5%;right:5%;height:64px;pointer-events:none;
+  background:linear-gradient(180deg,transparent,rgba(34,211,238,.26) 50%,transparent);
+  border-bottom:1px solid rgba(34,211,238,.7);box-shadow:0 6px 26px rgba(34,211,238,.35);
+  animation:scanMove 2.9s cubic-bezier(.4,0,.6,1) infinite alternate;
+}
+@keyframes scanMove{from{top:-8%}to{top:96%}}
+.hud-read{padding:14px 18px 18px;display:grid;gap:9px;font:600 .66rem var(--font-m);letter-spacing:.14em;color:var(--mut)}
+.hud-row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.verdict{padding:5px 12px;border-radius:8px;font:700 .64rem var(--font-m);letter-spacing:.2em;transition:.3s}
+.verdict.scan{color:#7fd7ef;background:rgba(34,211,238,.1);border:1px solid rgba(34,211,238,.4)}
+.verdict.ok{color:#86efac;background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.5)}
+.verdict.bad{color:#fda4af;background:rgba(251,86,112,.14);border:1px solid rgba(251,86,112,.55);animation:verdictBlink .5s steps(2) 3}
+@keyframes verdictBlink{50%{opacity:.35}}
+.meter{height:5px;border-radius:99px;background:rgba(120,150,255,.14);overflow:hidden;flex:1}
+.meter i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--blue),var(--cyan));box-shadow:0 0 12px rgba(34,211,238,.7);transition:width .7s ease}
+.cursor-blink{animation:cBlink 1s steps(1) infinite}
+@keyframes cBlink{50%{opacity:0}}
+
+/* ticker */
+.ticker{overflow:hidden;border-block:1px solid var(--line);padding:12px 0;margin:34px 0 8px;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
+          mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.ticker-track{display:flex;gap:3rem;width:max-content;animation:tickMove 30s linear infinite;
+  font:600 .7rem var(--font-m);letter-spacing:.3em;color:#67e8f9;text-transform:uppercase}
+.ticker-track span{display:flex;gap:3rem}
+.ticker-track b{color:var(--purple)}
+@keyframes tickMove{to{transform:translateX(-50%)}}
+
+/* por quê + stats */
+.why{display:grid;grid-template-columns:1.2fr .8fr;gap:22px;align-items:stretch}
+.why-quote{font-size:1.05rem}
+.why-quote strong{color:#a5f3fc}
+.src-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:22px}
+.stat{padding:22px 18px;text-align:left}
+.stat b{display:block;font:700 clamp(1.9rem,4vw,2.7rem)/1 var(--font-d);background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 12px rgba(59,130,246,.4))}
+.stat span{font:600 .66rem var(--font-m);letter-spacing:.18em;color:var(--mut);text-transform:uppercase;display:block;margin-top:8px}
+
+/* ══════════════════════════ GRID / COMPONENTES DE CONTEÚDO ══════════════════════════ */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.cases{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.case-card .case-ico{font-size:1.7rem;filter:drop-shadow(0 0 10px rgba(124,58,237,.6))}
+.case-card h4{font:700 1.02rem var(--font-d);margin:12px 0 8px;letter-spacing:.02em}
+.case-card p{color:var(--mut);font-size:.88rem}
+.case-src{display:block;margin-top:14px;font:600 .6rem var(--font-m);letter-spacing:.14em;color:var(--dim);text-transform:uppercase;border-top:1px dashed rgba(120,150,255,.2);padding-top:11px}
+.tag-year{position:absolute;top:18px;right:18px;font:700 .6rem var(--font-m);letter-spacing:.14em;color:#a5f3fc;border:1px solid rgba(34,211,238,.35);border-radius:8px;padding:4px 9px;background:rgba(34,211,238,.07)}
+
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:22px}
+.vs .card h4{font:700 1.05rem var(--font-d);margin-bottom:10px;display:flex;gap:10px;align-items:center}
+.vs .card p{color:var(--mut);font-size:.92rem}
+.vs .card.bad-side{border-color:rgba(251,86,112,.28)}
+.vs .card.bad-side:hover{border-color:rgba(251,86,112,.55);box-shadow:0 26px 60px -22px rgba(251,86,112,.3)}
+
+.def-chip{font:700 .62rem var(--font-m);letter-spacing:.16em;padding:5px 11px;border-radius:8px}
+.def-ok{color:#86efac;background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.4)}
+.check-line{display:inline-flex;gap:9px;align-items:center;margin-top:16px;font:600 .72rem var(--font-m);letter-spacing:.08em;color:#86efac}
+
+/* abas de formato */
+.ftabs{display:flex;gap:10px;margin:26px 0 16px;flex-wrap:wrap}
+.ftab{
+  font:700 .78rem var(--font-d);letter-spacing:.1em;padding:12px 22px;border-radius:12px;
+  color:var(--mut);border:1px solid var(--line);background:rgba(13,19,38,.5);transition:.3s;
+}
+.ftab:hover{color:#bfe9ff;border-color:rgba(34,211,238,.4)}
+.ftab.active{color:#fff;background:linear-gradient(92deg,rgba(37,99,235,.35),rgba(124,58,237,.35));
+  border-color:rgba(34,211,238,.55);box-shadow:0 8px 24px -8px rgba(59,130,246,.5),inset 0 1px 0 rgba(255,255,255,.15)}
+.fpanel{display:none;animation:screenIn .4s ease both}
+.fpanel.show{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.fpanel .card h5{font:700 .68rem var(--font-m);letter-spacing:.22em;color:var(--cyan);margin-bottom:12px;text-transform:uppercase}
+.fpanel .card p{color:var(--mut);font-size:.9rem}
+
+/* timeline como acontece */
+.steps{display:grid;gap:0;margin-top:26px;position:relative}
+.steps::before{content:"";position:absolute;left:27px;top:20px;bottom:20px;width:2px;
+  background:linear-gradient(180deg,var(--blue),var(--purple),var(--cyan));opacity:.5;box-shadow:0 0 14px rgba(124,58,237,.6)}
+.step{display:grid;grid-template-columns:56px 1fr;gap:20px;padding:14px 0;position:relative}
+.step-num{
+  width:56px;height:56px;border-radius:16px;display:grid;place-items:center;position:relative;z-index:1;
+  font:700 1.15rem var(--font-d);color:#fff;
+  background:linear-gradient(150deg,rgba(37,99,235,.9),rgba(124,58,237,.9));
+  box-shadow:0 8px 24px -6px rgba(59,130,246,.55),inset 0 1px 0 rgba(255,255,255,.3);
+  border:1px solid rgba(34,211,238,.4);
+}
+.step-body{padding-top:6px}
+.step-body h4{font:700 1rem var(--font-d);letter-spacing:.06em;display:flex;align-items:center;gap:10px}
+.step-body h4 em{font:600 .58rem var(--font-m);letter-spacing:.2em;color:var(--cyan);font-style:normal}
+.step-body p{color:var(--mut);font-size:.92rem;margin-top:5px}
+.warn-box{
+  margin-top:24px;border:1px solid rgba(251,191,36,.35);background:rgba(251,191,36,.06);
+  border-radius:var(--r-md);padding:16px 20px;color:#fde68a;font-size:.9rem;display:flex;gap:12px;align-items:flex-start;
+}
+
+/* riscos */
+.risk-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.risk-card .r-ico{font-size:1.8rem;filter:drop-shadow(0 0 10px rgba(37,99,235,.55))}
+.risk-card h4{font:700 .95rem var(--font-d);margin:12px 0 6px}
+.risk-card p{color:var(--mut);font-size:.85rem}
+.conseq{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:20px}
+.conseq .item{display:flex;gap:14px;align-items:flex-start;padding:18px}
+.conseq .item span{font-size:1.4rem;flex:none}
+.conseq .item b{font-family:var(--font-d);letter-spacing:.03em;display:block;margin-bottom:4px}
+.conseq .item p{color:var(--mut);font-size:.85rem}
+
+.eleicoes{
+  margin-top:26px;border-radius:var(--r-lg);padding:30px;position:relative;overflow:hidden;
+  background:linear-gradient(150deg,rgba(76,29,149,.32),rgba(30,27,75,.4) 55%,rgba(8,47,73,.35));
+  border:1px solid rgba(168,85,247,.35);backdrop-filter:blur(14px);
+  box-shadow:0 24px 60px -24px rgba(124,58,237,.5),inset 0 1px 0 rgba(255,255,255,.06);
+}
+.eleicoes::after{content:"🗳️";position:absolute;right:-14px;bottom:-26px;font-size:9rem;opacity:.07;transform:rotate(-10deg)}
+.eleicoes h3{font:700 1.35rem var(--font-d);margin-bottom:18px;display:flex;gap:10px;align-items:center}
+.atk{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.atk-item{background:rgba(8,12,26,.5);border:1px solid rgba(168,85,247,.22);border-radius:14px;padding:15px 17px;font-size:.87rem;color:var(--mut);transition:.3s}
+.atk-item:hover{border-color:rgba(168,85,247,.55);transform:translateY(-2px)}
+.atk-item b{color:var(--txt);font-family:var(--font-d);display:block;margin-bottom:4px;letter-spacing:.03em}
+.tse-note{margin-top:18px;padding:15px 18px;border-radius:12px;background:rgba(34,211,238,.07);border:1px solid rgba(34,211,238,.3);font-size:.87rem;color:#c9f4ff}
+.eleicoes blockquote{margin-top:20px;padding-left:18px;border-left:3px solid var(--purple);color:#d8c7f7;font-size:.95rem;font-style:italic}
+
+/* defesa */
+.def-cols{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:8px}
+.def-col{padding:26px}
+.def-col h3{font:700 1.15rem var(--font-d);letter-spacing:.08em;display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.def-col.green{border-color:rgba(52,211,153,.3)}
+.def-col.green h3{color:#6ee7b7}
+.def-col.red{border-color:rgba(251,86,112,.3)}
+.def-col.red h3{color:#fda4af}
+.def-list{list-style:none;display:grid;gap:13px}
+.def-list li{display:flex;gap:12px;font-size:.9rem;color:var(--mut);align-items:flex-start;padding:11px 13px;border-radius:12px;background:rgba(8,12,26,.42);border:1px solid transparent;transition:.3s}
+.def-list li:hover{border-color:rgba(120,150,255,.25);transform:translateX(4px)}
+.def-list li b{color:var(--txt)}
+.def-list li .ic{flex:none;width:26px;text-align:center}
+
+.train{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:22px}
+.train-card{display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.train-card .t-ico{font-size:2rem;filter:drop-shadow(0 0 12px rgba(34,211,238,.55))}
+.train-card h4{font:700 1rem var(--font-d)}
+.train-card p{color:var(--mut);font-size:.85rem;flex:1}
+
+/* ══════════════════════════ QUIZ ══════════════════════════ */
+.q-tabs{display:flex;gap:10px;flex-wrap:wrap;margin:24px 0 20px}
+.q-tab{font:700 .76rem var(--font-d);letter-spacing:.1em;padding:11px 20px;border-radius:12px;color:var(--mut);border:1px solid var(--line);background:rgba(13,19,38,.5);transition:.3s}
+.q-tab.active{color:#fff;background:linear-gradient(92deg,rgba(37,99,235,.4),rgba(124,58,237,.4));border-color:rgba(34,211,238,.55);box-shadow:0 8px 22px -8px rgba(59,130,246,.5)}
+.q-tab.soon{opacity:.45;cursor:not-allowed}
+.quiz-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;max-width:760px;margin:0 auto}
+.quiz-opt{padding:12px;text-align:left;overflow:hidden;position:relative}
+.quiz-opt .quiz-img{border-radius:14px;overflow:hidden;border:1px solid rgba(120,150,255,.2);position:relative;height:280px}
+.quiz-opt .quiz-img img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .5s}
+.quiz-opt:hover .quiz-img img{transform:scale(1.03)}
+.quiz-tag{display:block;font:700 .64rem var(--font-m);letter-spacing:.26em;color:#7fd7ef;padding:4px 4px 10px}
+.quiz-desc{font-size:.75rem;color:var(--mut);margin-top:8px;line-height:1.4;padding:0 4px;min-height:60px}
+.quiz-opt .stamp{
+  position:absolute;inset:auto 12px 12px auto;font:700 .72rem var(--font-m);letter-spacing:.18em;
+  padding:7px 13px;border-radius:10px;opacity:0;transform:scale(.6) rotate(-8deg);transition:.35s cubic-bezier(.3,1.6,.4,1);z-index:2;
+}
+.quiz-opt.was-fake .stamp{opacity:1;transform:scale(1) rotate(-4deg);background:rgba(251,86,112,.9);color:#fff;box-shadow:0 8px 24px rgba(251,86,112,.5)}
+.quiz-opt.was-real .stamp{opacity:1;transform:scale(1) rotate(-4deg);background:rgba(52,211,153,.9);color:#04251a;box-shadow:0 8px 24px rgba(52,211,153,.5)}
+.quiz-opt.picked{border-color:var(--cyan);box-shadow:0 0 0 2px rgba(34,211,238,.5),0 20px 50px -18px rgba(34,211,238,.45)}
+.quiz-opt.locked{pointer-events:none}
+.quiz-feedback{max-width:760px;margin:20px auto 0;padding:20px 24px;min-height:64px}
+.quiz-feedback h4{font:700 1rem var(--font-d);margin-bottom:8px}
+.quiz-feedback ul{margin:10px 0 0 18px;color:var(--mut);font-size:.87rem;display:grid;gap:5px}
+.quiz-feedback.hit h4{color:#6ee7b7}.quiz-feedback.miss h4{color:#fda4af}
+.quiz-bar{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:center;margin-top:22px}
+.score-pill{font:700 .74rem var(--font-m);letter-spacing:.18em;color:#a5f3fc;border:1px solid rgba(34,211,238,.35);border-radius:999px;padding:11px 20px;background:rgba(34,211,238,.06)}
+.edu-note{margin-top:26px;text-align:center;font-size:.78rem;color:var(--dim);font-style:italic}
+
+/* ══════════════════════════ SIMULADOR / CHAT ══════════════════════════ */
+.chat{max-width:720px;margin:24px auto 0;padding:0;overflow:hidden;display:flex;flex-direction:column}
+.chat-head{
+  display:flex;align-items:center;gap:12px;padding:15px 20px;border-bottom:1px solid rgba(120,150,255,.16);
+  background:linear-gradient(92deg,rgba(37,99,235,.22),rgba(124,58,237,.22));
+}
+.bot-ava{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-size:1.2rem;
+  background:linear-gradient(150deg,#2563eb,#7c3aed);box-shadow:0 6px 18px -4px rgba(124,58,237,.6),inset 0 1px 0 rgba(255,255,255,.3)}
+.chat-head b{font:700 .92rem var(--font-d);letter-spacing:.1em}
+.chat-head small{display:block;font:600 .58rem var(--font-m);letter-spacing:.2em;color:#6ee7b7}
+.chat-body{height:380px;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:12px;
+  background:radial-gradient(ellipse at top,rgba(37,99,235,.07),transparent 60%)}
+.msg{max-width:86%;padding:13px 16px;border-radius:16px;font-size:.88rem;line-height:1.55;animation:msgIn .35s cubic-bezier(.2,.9,.3,1.2) both}
+@keyframes msgIn{from{opacity:0;transform:translateY(12px) scale(.96)}to{opacity:1;transform:none}}
+.msg.bot{align-self:flex-start;background:rgba(20,28,56,.9);border:1px solid rgba(120,150,255,.22);border-bottom-left-radius:5px}
+.msg.user{align-self:flex-end;background:linear-gradient(92deg,rgba(37,99,235,.85),rgba(124,58,237,.85));border-bottom-right-radius:5px;box-shadow:0 8px 22px -8px rgba(59,130,246,.55)}
+.msg.typing span{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--cyan);margin-right:5px;animation:tp 1s infinite}
+.msg.typing span:nth-child(2){animation-delay:.15s}.msg.typing span:nth-child(3){animation-delay:.3s}
+@keyframes tp{0%,100%{transform:translateY(0);opacity:.4}50%{transform:translateY(-5px);opacity:1}}
+.v-badge{display:inline-block;font:700 .62rem var(--font-m);letter-spacing:.18em;padding:5px 11px;border-radius:8px;margin-bottom:9px}
+.v-bad{background:rgba(251,86,112,.16);color:#fda4af;border:1px solid rgba(251,86,112,.55)}
+.v-warn{background:rgba(251,191,36,.12);color:#fde68a;border:1px solid rgba(251,191,36,.5)}
+.msg .m-sub{display:grid;gap:8px;margin-top:10px;font-size:.82rem;color:var(--mut)}
+.msg .m-sub b{color:#7fd7ef;font:600 .62rem var(--font-m);letter-spacing:.18em;display:block;margin-bottom:3px}
+.msg .m-src{margin-top:10px;font:600 .6rem var(--font-m);letter-spacing:.12em;color:var(--dim);border-top:1px dashed rgba(120,150,255,.2);padding-top:8px}
+.chat-scen{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:16px 20px;border-top:1px solid rgba(120,150,255,.16);background:rgba(8,12,26,.55)}
+.scen-btn{
+  display:flex;gap:9px;align-items:center;text-align:left;font:600 .76rem var(--font-b);color:var(--mut);
+  padding:11px 13px;border-radius:12px;border:1px solid var(--line);background:rgba(13,19,38,.6);transition:.25s;
+}
+.scen-btn:hover{color:#fff;border-color:rgba(34,211,238,.5);transform:translateY(-2px);box-shadow:0 8px 20px -8px rgba(34,211,238,.4)}
+.scen-btn.used{opacity:.42}
+.scen-btn.used::after{content:" ✓";color:var(--green)}
+.chat-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 20px;border-top:1px solid rgba(120,150,255,.12)}
+.chat-foot small{font:600 .62rem var(--font-m);letter-spacing:.14em;color:var(--dim)}
+
+/* ══════════════════════════ COMPARADOR ═════════════════════════ */
+.cmp-wrap{max-width:640px;margin:26px auto 0}
+.cmp{
+  position:relative;border-radius:20px;overflow:hidden;border:1px solid rgba(34,211,238,.35);
+  box-shadow:0 30px 70px -26px rgba(37,99,235,.55),0 0 0 1px rgba(34,211,238,.08);
+  touch-action:none;user-select:none;cursor:ew-resize;--split:50%;
+}
+.cmp-layer{position:relative}
+.cmp-layer svg{display:block;width:100%;height:auto}
+.cmp-real{position:absolute;inset:0;clip-path:inset(0 calc(100% - var(--split)) 0 0)}
+.cmp-label{position:absolute;top:14px;font:700 .62rem var(--font-m);letter-spacing:.22em;padding:6px 12px;border-radius:9px;z-index:3;pointer-events:none}
+.cmp-label.l{left:14px;color:#04251a;background:rgba(52,211,153,.92);box-shadow:0 6px 18px rgba(52,211,153,.4)}
+.cmp-label.r{right:14px;color:#fff;background:rgba(251,86,112,.92);box-shadow:0 6px 18px rgba(251,86,112,.4)}
+.cmp-handle{
+  position:absolute;top:0;bottom:0;left:var(--split);width:3px;transform:translateX(-50%);z-index:4;
+  background:linear-gradient(180deg,#fff,rgba(34,211,238,.9),#fff);box-shadow:0 0 18px rgba(34,211,238,.9),0 0 40px rgba(34,211,238,.5);
+}
+.cmp-grip{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:46px;height:46px;border-radius:50%;
+  background:linear-gradient(150deg,#2563eb,#7c3aed);border:2px solid #fff;display:grid;place-items:center;
+  font:700 .7rem var(--font-d);color:#fff;letter-spacing:.05em;
+  box-shadow:0 8px 26px rgba(37,99,235,.7),inset 0 1px 0 rgba(255,255,255,.4);
+}
+.cmp-hint{text-align:center;margin-top:14px;font:600 .66rem var(--font-m);letter-spacing:.22em;color:var(--cyan)}
+.cmp-tips{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px;max-width:640px;margin-inline:auto}
+.cmp-tips .tip{display:flex;gap:11px;font-size:.84rem;color:var(--mut);padding:14px 16px}
+.cmp-tips .tip b{color:var(--txt)}
+.back-link{display:inline-flex;gap:8px;margin-top:28px;font:700 .72rem var(--font-d);letter-spacing:.14em;color:#7fd7ef;text-transform:uppercase;transition:.25s}
+.back-link:hover{color:#fff;text-shadow:0 0 14px rgba(34,211,238,.8);transform:translateX(-4px)}
+
+/* ═════════════════════════ FONTES ══════════════════════════ */
+.src-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.src-grid .card h4{font:700 .98rem var(--font-d);margin-bottom:8px}
+.src-grid .card p{color:var(--mut);font-size:.85rem}
+.src-grid .card .url{font:600 .68rem var(--font-m);color:var(--cyan);letter-spacing:.06em;display:block;margin-top:10px}
+.case-list{margin-top:8px;padding:22px 26px}
+.case-list li{margin-left:18px;color:var(--mut);font-size:.87rem;padding:4px 0}
+.proto-foot{
+  margin-top:34px;text-align:center;padding:26px;border-radius:var(--r-lg);
+  background:linear-gradient(92deg,rgba(37,99,235,.14),rgba(124,58,237,.14),rgba(34,211,238,.1));
+  border:1px solid rgba(120,150,255,.22);
+}
+.proto-foot b{font:700 .9rem var(--font-d);letter-spacing:.1em}
+.proto-foot p{color:var(--mut);font-size:.82rem;margin-top:8px}
+.team-line{margin-top:14px;font:600 .74rem var(--font-m);letter-spacing:.18em;color:var(--dim)}
+
+/* ══════════════════════════ TAB BAR ══════════════════════════ */
+.tabbar{
+  position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:55;
+  display:flex;gap:6px;padding:8px;border-radius:22px;max-width:calc(100vw - 16px);
+  background:rgba(9,13,28,.85);border:1px solid rgba(120,150,255,.24);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  box-shadow:0 20px 55px -14px rgba(0,0,0,.85),0 0 0 1px rgba(34,211,238,.06),0 0 38px -8px rgba(59,130,246,.35);
+  padding-bottom:calc(8px + env(safe-area-inset-bottom,0px)*.6);
+}
+.tab{
+  flex:1;min-width:64px;display:flex;flex-direction:column;align-items:center;gap:4px;
+  padding:9px 12px 7px;border-radius:15px;color:var(--dim);
+  font:700 .58rem var(--font-d);letter-spacing:.1em;text-transform:uppercase;position:relative;transition:.3s;
+}
+.tab .ico{font-size:1.2rem;filter:grayscale(.55) brightness(.85);transition:.3s}
+.tab:hover{color:var(--mut)}
+.tab:hover .ico{transform:translateY(-2px);filter:grayscale(.2)}
+.tab.active{
+  color:#dff6ff;background:linear-gradient(160deg,rgba(37,99,235,.3),rgba(124,58,237,.24));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 0 20px -4px rgba(34,211,238,.55);
+}
+.tab.active .ico{filter:none;transform:translateY(-2px) scale(1.12)}
+.tab.active::after{
+  content:"";position:absolute;bottom:3px;width:16px;height:3px;border-radius:99px;
+  background:linear-gradient(90deg,var(--cyan),var(--purple));box-shadow:0 0 10px rgba(34,211,238,.9);
+}
+
+/* ══════════════════════════ RESPONSIVO ══════════════════════════ */
+@media(max-width:960px){
+  .hero{grid-template-columns:1fr;min-height:auto;gap:32px}
+  .hud{max-width:440px}
+  .why{grid-template-columns:1fr}
+  .fpanel.show{grid-template-columns:1fr}
+  .risk-grid{grid-template-columns:repeat(2,1fr)}
+  .atk{grid-template-columns:1fr}
+  .train{grid-template-columns:1fr}
+  .def-cols{grid-template-columns:1fr}
+  .dots{display:none}
+}
+@media(max-width:680px){
+  main{padding:0 14px}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .grid-2,.grid-3,.vs,.conseq,.quiz-grid,.cmp-tips{grid-template-columns:1fr}
+  .chat-scen{grid-template-columns:1fr}
+  .chat-body{height:330px}
+  .badge-fase{display:none}
+  .hero h1{font-size:clamp(2.5rem,13vw,3.4rem)}
+  .tab{min-width:0;padding:8px 8px 6px;font-size:.5rem}
+  .tab .ico{font-size:1.1rem}
+  .step{grid-template-columns:44px 1fr;gap:14px}
+  .step-num{width:44px;height:44px;border-radius:12px;font-size:.95rem}
+  .steps::before{left:21px}
+  body{padding-bottom:108px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  .reveal{opacity:1!important;transform:none!important}
+  .ticker-track{animation:none;width:auto}
+  .scanline{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="bg-grid" aria-hidden="true"></div>
+<div class="orb orb-b" aria-hidden="true"></div>
+<div class="orb orb-p" aria-hidden="true"></div>
+<div class="orb orb-c" aria-hidden="true"></div>
+<div class="noise" aria-hidden="true"></div>
+
+<!-- ═══════════ HEADER ═══════════ -->
+<header class="top">
+  <div class="logo">
+    <svg viewBox="0 0 40 40" aria-hidden="true">
+      <defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22d3ee"/><stop offset="1" stop-color="#a855f7"/></linearGradient></defs>
+      <circle cx="20" cy="20" r="17" fill="none" stroke="url(#lg)" stroke-width="2.4"/>
+      <path d="M20 3a17 17 0 0 1 0 34Z" fill="rgba(168,85,247,.22)"/>
+      <circle cx="13.5" cy="17" r="2.4" fill="#22d3ee"/>
+      <path d="M23.5 14.6 28.4 19.5M28.4 14.6 23.5 19.5" stroke="#fb5670" stroke-width="2" stroke-linecap="round"/>
+      <path d="M13 26q7 5 14 0" fill="none" stroke="url(#lg)" stroke-width="2" stroke-linecap="round" stroke-dasharray="3 3"/>
+    </svg>
+    <div class="logo-name">DESMASCARA<small>REAL OU FAKE?</small></div>
+  </div>
+  <nav class="dots" id="dots" aria-label="Telas"></nav>
+  <div class="top-right">
+    <span class="led"><i></i>SYNC</span>
+    <span class="badge-fase">⚡ MARATONA TECH 2026 · FASE 1</span>
+    <span class="scr-count" id="scrCount">TELA 01/09</span>
+  </div>
+</header>
+
+<main>
+
+<!-- ═══════════════════ TELA 1 · INÍCIO ═══════════════════ -->
+<section class="screen active" id="scr-inicio" data-name="inicio">
+  <div class="hero">
+    <div>
+      <div class="hero-badge reveal">
+        <span class="chip">⚡ Maratona Tech 2026 · Fase 1</span>
+        <span class="chip purple">🧩 Dilemas Digitais: Deepfakes</span>
+      </div>
+      <h1 class="reveal" id="heroTitle" data-text="DESMASCARA">DESMASCARA</h1>
+      <div class="hero-sub reveal">REAL OU FAKE?</div>
+      <p class="lead reveal">App educativo para jovens: <strong>identifique, evite e combata</strong> falsificações geradas por IA antes de cair em golpe, espalhar fake ou ter sua imagem usada sem consentimento.</p>
+      <div class="hero-chips reveal">
+        <span class="chip dim">📱 9 telas navegáveis</span>
+        <span class="chip dim"> áudio</span>
+        <span class="chip dim">🎬 vídeo</span>
+        <span class="chip dim">🖼️ imagem</span>
+        <span class="chip dim">🎯 mini-quiz</span>
+        <span class="chip dim">🔬 comparador</span>
+        <span class="chip dim">🤖 6 cenários</span>
+        <span class="chip dim">📚 fontes verificáveis</span>
+      </div>
+      <div class="hero-cta reveal">
+        <button class="btn btn-primary" data-go="problema">Começar →</button>
+        <button class="btn btn-ghost" data-go="quiz"> Mini-quiz: ache o deepfake</button>
+        <span class="kbd-hint"><kbd>←</kbd><kbd>→</kbd> navegam entre as 9 telas</span>
+      </div>
+    </div>
+
+    <!-- HUD de detecção -->
+    <div class="hud card card-hud reveal" aria-hidden="true">
+      <div class="hud-head"><span>FAKE.SCAN v2.6 — MODO ESTUDO</span><span class="rec"><i></i>LIVE</span></div>
+      <div class="hud-face">
+        <svg viewBox="0 0 300 300">
+          <defs><radialGradient id="hg" cx="50%" cy="42%" r="65%"><stop offset="0" stop-color="#122045"/><stop offset="1" stop-color="#070b18"/></radialGradient></defs>
+          <rect width="300" height="300" fill="url(#hg)"/>
+          <g stroke="rgba(34,211,238,.14)" fill="none">
+            <ellipse cx="150" cy="140" rx="72" ry="86" stroke-dasharray="4 6"/>
+            <path d="M78 140h144M150 46v188"/>
+            <path d="M118 128q10-6 22 0M160 128q10-6 22 0" stroke-width="1.6"/>
+            <circle cx="129" cy="140" r="7"/><circle cx="171" cy="140" r="7"/>
+            <path d="M150 140l-5 26h10zM128 196q22 14 44 0"/>
+          </g>
+          <g fill="rgba(34,211,238,.85)" font-family="monospace" font-size="8" letter-spacing="1">
+            <text x="16" y="24">ID:01001</text><text x="230" y="24">SYNC:OK</text>
+            <text x="16" y="284">FACE_MESH 46pts</text><text x="206" y="284">Δ 0.03mm</text>
+          </g>
+          <g stroke="rgba(168,85,247,.5)" stroke-width="1.4" fill="none">
+            <path d="M14 14h22M14 14v22M286 14h-22M286 14v22M14 286h22M14 286v-22M286 286h-22M286 286v-22"/>
+          </g>
+        </svg>
+        <div class="scanline"></div>
+      </div>
+      <div class="hud-read">
+        <div class="hud-row"><span>DIA_01 · SYNC MÍDIA<span class="cursor-blink">▊</span></span><span class="verdict scan" id="hudVerdict">ANALISANDO…</span></div>
+        <div class="hud-row"><span>CONFIANÇA DA IA</span><span class="meter"><i id="hudMeter" style="width:87%"></i></span><span id="hudConf">87.4%</span></div>
+        <div class="hud-row"><span style="color:#5d6b87">MATERIAL 100% EDUCATIVO · SEM DADOS INVENTADOS</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ticker reveal" aria-hidden="true">
+    <div class="ticker-track">
+      <span>ÁUDIO ◆ VÍDEO ◆ IMAGEM ◆ <b>ELEIÇÕES</b> ◆ VOZ CLONADA ◆ GOLPES ◆ <b>DESINFORMAÇÃO</b> ◆ CHECAGEM ◆ TSE ◆ SAFERNET ◆</span>
+      <span>ÁUDIO ◆ VÍDEO ◆ IMAGEM ◆ <b>ELEIÇÕES</b> ◆ VOZ CLONADA ◆ GOLPES ◆ <b>DESINFORMAÇÃO</b> ◆ CHECAGEM ◆ TSE ◆ SAFERNET ◆</span>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="why">
+      <div class="card card-hud reveal">
+        <div class="eyebrow">// Por que DESMASCARA?</div>
+        <p class="why-quote">Deepfakes estão cada vez mais difíceis de reconhecer — a IA já <strong>clona vozes em segundos</strong> e <strong>troca rostos com quase nenhuma falha</strong>. Este app ensina você a ver o que ninguém vê antes de cair em golpe, espalhar fake ou ter sua imagem usada sem consentimento.</p>
+        <div class="src-chips">
+          <span class="chip dim">📚 Wikipédia</span><span class="chip dim">🔎 Lupa</span><span class="chip dim">🔎 Aos Fatos</span>
+          <span class="chip dim"> Comprova</span><span class="chip dim">🗳️ TSE</span><span class="chip dim">️ SaferNet</span>
+        </div>
+      </div>
+      <div class="card reveal">
+        <div class="eyebrow">// Conteúdo</div>
+        <ul class="def-list">
+          <li><span class="ic">🎯</span><span><b>Mini-quiz:</b> ache o deepfake entre duas imagens.</span></li>
+          <li><span class="ic">🔬</span><span><b>Comparador:</b> arraste a linha entre foto real × falsa.</span></li>
+          <li><span class="ic">🤖</span><span><b>Simulador:</b> 6 cenários analisados pelo DesmascaraBot.</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat card reveal"><b>3</b><span>formatos: áudio · vídeo · imagem</span></div>
+      <div class="stat card reveal"><b>2</b><span>desafios práticos</span></div>
+      <div class="stat card reveal"><b>6</b><span>cenários simulados</span></div>
+      <div class="stat card reveal"><b>4</b><span>canais de denúncia</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ TELA 2 · O PROBLEMA ═══════════════════ -->
+<section class="screen" id="scr-problema" data-name="problema">
+  <div class="sec">
+    <div class="eyebrow reveal">// Tela 02 · O Problema</div>
+    <h2 class="reveal">Qual é o <span class="grad-txt">problema</span>?</h2>
+    <p class="lead reveal">Deepfake é um vídeo, áudio ou imagem criado por inteligência artificial que troca ou gera rostos, vozes e movimentos de uma pessoa — <strong>parecendo real, mas sendo falso</strong>.</p>
+    <span class="check-line reveal">✔ Definição conferida no verbete "Deepfake" · Wikipédia (pt/en)</span>
+
+    <div class="vs">
+      <div class="card reveal">
+        <h4>✂️ Montagem comum</h4>
+        <p>Cola e edita material que já existe (ex.: recortar um rosto numa foto). Costuma deixar <strong>bordas e erros visíveis</strong>.</p>
+      </div>
+      <div class="card bad-side reveal">
+        <h4>🤖 Deepfake com IA</h4>
+        <p>A IA "aprende" com milhares de fotos/áudios da pessoa e gera conteúdo novo, com movimentos e voz convincentes. <strong>Muito mais difícil de perceber.</strong></p>
+      </div>
+    </div>
+
+    <div class="sec">
+      <h3 class="reveal" style="font:700 1.3rem var(--font-d)">Áudio, vídeo e imagem</h3>
+      <p class="lead reveal" style="font-size:.92rem">O deepfake aparece em três formatos. Toque em cada um para ver como é feito, quais os sinais e um caso real.</p>
+      <div class="ftabs reveal" role="tablist">
+        <button class="ftab active" data-ft="audio">🔊 Áudio</button>
+        <button class="ftab" data-ft="video">🎬 Vídeo</button>
+        <button class="ftab" data-ft="imagem">🖼️ Imagem</button>
+      </div>
+      <div class="fpanel show" id="fp-audio">
+        <div class="card"><h5>Como é feito</h5><p>A IA precisa de <strong>poucos segundos de voz</strong> — um áudio de WhatsApp já basta. Ela aprende tom, ritmo e sotaque, e gera qualquer frase com a voz clonada.</p></div>
+        <div class="card"><h5>Sinais para ficar ligado</h5><p>Voz "perfeita demais" ou robótica · cortes estranhos entre palavras · respiração e entonação fora do lugar · pedido urgente de dinheiro.</p></div>
+        <div class="card"><h5>Caso real</h5><p><strong>2019 —</strong> criminosos clonaram a voz de um executivo por telefone e convenceram uma empresa a transferir ~US$ 243 mil. <em style="color:var(--dim)">Imprensa internacional (ex.: WSJ).</em></p></div>
+      </div>
+      <div class="fpanel" id="fp-video">
+        <div class="card"><h5>Como é feito</h5><p>Modelos de IA trocam o rosto <strong>quadro a quadro</strong>, reaplicando expressões e movimentos no rosto de outra pessoa, em qualquer contexto.</p></div>
+        <div class="card"><h5>Sinais para ficar ligado</h5><p>Piscar estranho ou ausente · boca fora de sincronia com o som · iluminação incoerente no rosto · bordas do rosto "tremendo".</p></div>
+        <div class="card"><h5>Caso real</h5><p><strong>2022 —</strong> vídeo falso tentou mostrar militares ucranianos "se rendendo"; desmentido rapidamente. <strong>2024 —</strong> videochamada com colegas deepfake causou US$ 25 mi de prejuízo em Hong Kong.</p></div>
+      </div>
+      <div class="fpanel" id="fp-imagem">
+        <div class="card"><h5>Como é feito</h5><p>A IA gera <strong>imagens inteiramente novas</strong> ou aplica rostos em fotos existentes, com alto realismo — às vezes indistinguíveis a olho nu.</p></div>
+        <div class="card"><h5>Sinais para ficar ligado</h5><p>Pele alisada, sem poros · dentes e dedos estranhos · fundo e reflexos distorcidos · brincos/óculos diferentes entre os lados.</p></div>
+        <div class="card"><h5>Caso real</h5><p><strong>2024 —</strong> imagens íntimas falsas geradas por IA da cantora Taylor Swift se espalharam e reacenderam o debate global por leis contra deepfakes não consensuais.</p></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <h3 class="reveal" style="font:700 1.3rem var(--font-d)">Casos que viralizaram</h3>
+      <p class="lead reveal" style="font-size:.92rem">Todos resumidos a partir de fontes públicas — valores conforme apuração da imprensa à época.</p>
+      <div class="cases" style="margin-top:20px">
+        <article class="card case-card reveal"><span class="tag-year">2022</span><span class="case-ico">️</span><h4>"Soldados se rendendo?"</h4><p>No início da guerra na Ucrânia, um vídeo falso tentou mostrar militares ucranianos "se rendendo". Foi desmentido rapidamente, inclusive por autoridades do país.</p><span class="case-src">Wikipédia + agências de notícia</span></article>
+        <article class="card case-card reveal"><span class="tag-year">2019</span><span class="case-ico">📞</span><h4>A voz do chefe</h4><p>Criminosos clonaram por telefone a voz de um executivo e convenceram uma empresa a transferir cerca de US$ 243 mil (valor divulgado pela imprensa).</p><span class="case-src">Imprensa internacional (ex.: Wall Street Journal)</span></article>
+        <article class="card case-card reveal"><span class="tag-year">EUA · 2024</span><span class="case-ico">🗳️</span><h4>"Não vote!"</h4><p>Na prévia de New Hampshire, uma ligação robótica com voz clonada do presidente dizia para eleitores não votarem. O responsável foi identificado e punido.</p><span class="case-src">Imprensa + autoridade de telecom (FCC)</span></article>
+        <article class="card case-card reveal"><span class="tag-year">2024</span><span class="case-ico">🎤</span><h4>Famosa alvo de imagens falsas</h4><p>Imagens íntimas falsas geradas por IA da cantora Taylor Swift se espalharam nas redes e reacenderam o debate global por leis contra deepfakes não consensuais.</p><span class="case-src">Imprensa internacional</span></article>
+        <article class="card case-card reveal"><span class="tag-year">HK · 2024</span><span class="case-ico">💸</span><h4>Reunião de vídeo falsa</h4><p>Um funcionário transferiu cerca de US$ 25 milhões após uma videochamada em que colegas — inclusive o diretor financeiro — eram deepfakes.</p><span class="case-src">Imprensa internacional (ex.: CNN)</span></article>
+        <article class="card case-card reveal"><span class="tag-year">BRASIL</span><span class="case-ico">🇧🇷</span><h4>Voz clonada no Zap</h4><p>Golpes com áudio clonado de parentes e amigos pedindo Pix se multiplicaram no país — a IA deixa a voz quase idêntica à original.</p><span class="case-src">Imprensa brasileira</span></article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ TELA 3 · COMO ACONTECE ═══════════════════ -->
+<section class="screen" id="scr-como" data-name="como">
+  <div class="sec">
+    <div class="eyebrow reveal">// Tela 03 · Como acontece</div>
+    <h2 class="reveal">Do perfil público ao <span class="grad-txt">golpe</span></h2>
+    <p class="lead reveal">Siga o caminho em 5 passos — e entenda por que desconfiar rápido é tão importante.</p>
+    <div class="steps">
+      <div class="step reveal"><div class="step-num">📥</div><div class="step-body"><h4>COLETA DE DADOS <em>ETAPA 01</em></h4><p>O golpista reúne fotos, vídeos e áudios da vítima em redes sociais, lives e entrevistas.</p></div></div>
+      <div class="step reveal"><div class="step-num">🧠</div><div class="step-body"><h4>TREINAMENTO DA IA <em>ETAPA 02</em></h4><p>Um programa de IA "estuda" o rosto e a voz da pessoa e aprende seus padrões.</p></div></div>
+      <div class="step reveal"><div class="step-num"></div><div class="step-body"><h4>GERAÇÃO DO DEEPFAKE <em>ETAPA 03</em></h4><p>A IA cria um vídeo ou áudio novo e falso, encaixando rosto e voz em qualquer contexto.</p></div></div>
+      <div class="step reveal"><div class="step-num"></div><div class="step-body"><h4>DISTRIBUIÇÃO <em>ETAPA 04</em></h4><p>O conteúdo é espalhado por redes sociais, WhatsApp, e-mail ou ligação, se passando por real.</p></div></div>
+      <div class="step reveal"><div class="step-num">💥</div><div class="step-body"><h4>AÇÃO DA VÍTIMA/PÚBLICO <em>ETAPA 05</em></h4><p>Pessoas acreditam, compartilham, transferem dinheiro ou tomam decisões baseadas na falsificação.</p></div></div>
+    </div>
+    <div class="warn-box reveal">⚠️ <span>Hoje, ferramentas gratuitas na internet fazem as etapas 1 a 3 em <strong>poucos minutos</strong> — por isso desconfiar rápido é tão importante.</span></div>
+  </div>
+</section>
+
+<!-- ══════════════════ TELA 4 · RISCOS ═══════════════════ -->
+<section class="screen" id="scr-riscos" data-name="riscos">
+  <div class="sec">
+    <div class="eyebrow reveal">// Tela 04 · Riscos</div>
+    <h2 class="reveal">Quem está na <span class="grad-txt">mira</span>?</h2>
+    <div class="risk-grid" style="margin-top:24px">
+      <div class="card risk-card reveal"><span class="r-ico">🧑‍🎓</span><h4>Pessoas comuns</h4><p>Bullying, humilhação pública e golpes financeiros.</p></div>
+      <div class="card risk-card reveal"><span class="r-ico">🏢</span><h4>Empresas</h4><p>Fraudes com voz e vídeo de diretores e executivos.</p></div>
+      <div class="card risk-card reveal"><span class="r-ico">🏛️</span><h4>Políticos e eleições</h4><p>Desinformação em massa em períodos eleitorais.</p></div>
+      <div class="card risk-card reveal"><span class="r-ico">⭐</span><h4>Famosos e influenciadores</h4><p>Imagens íntimas falsas e chantagem.</p></div>
+    </div>
+
+    <h3 class="reveal" style="font:700 1.3rem var(--font-d);margin-top:52px">Consequências</h3>
+    <div class="conseq">
+      <div class="card item reveal"><span></span><div><b>Perda financeira</b><p>Golpes aplicados por voz ou vídeo falsos.</p></div></div>
+      <div class="card item reveal"><span>💔</span><div><b>Reputação e saúde mental</b><p>A vítima carrega o dano de algo que nunca fez.</p></div></div>
+      <div class="card item reveal"><span>📢</span><div><b>Fake news em escala</b><p>Manipulação da opinião pública.</p></div></div>
+      <div class="card item reveal"><span>⚖️</span><div><b>Consequências legais</b><p>Criar e compartilhar deepfakes pode ser crime; no Brasil, condutas ligadas a deepfakes já podem ser enquadradas na lei, e o TSE tem regras específicas para eleições.</p></div></div>
+    </div>
+
+    <div class="eleicoes reveal">
+      <h3>🗳️ Deepfakes × Eleições — por que a política é o alvo mais perigoso</h3>
+      <div class="atk">
+        <div class="atk-item"><b>🎤 Discurso inventado</b>Vídeo ou áudio em que um candidato "diz" algo que nunca disse, para difamá-lo ou simular apoio.</div>
+        <div class="atk-item"><b>⏰ Ataque de última hora</b>Fake divulgado perto da votação, sem tempo hábil para desmentir.</div>
+        <div class="atk-item"><b>🖥️ "Fraude" fake nas urnas</b>Vídeos falsos sugerindo fraude na votação/apuração para minar a confiança nas instituições.</div>
+        <div class="atk-item"><b>🔊 Orientação de voto falsa</b>Áudios clonados mandando votar no dia, horário ou local errado — ou pedindo para não votar (já aconteceu em New Hampshire, EUA, 2024).</div>
+      </div>
+      <div class="tse-note">Nas eleições municipais de <strong>2024</strong>, o TSE aprovou regras que <strong>proíbem o uso de deepfakes em campanhas</strong> — quem desrespeitar pode ser punido pela Justiça Eleitoral. Consulte a redação atualizada em <strong>tse.jus.br</strong>.</div>
+      <blockquote>"Na política, o alvo não é uma pessoa: é a opinião pública em massa. Uma mentira bem-feita pode influenciar o resultado de uma eleição."</blockquote>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ TELA 5 · DEFESA ═══════════════════ -->
+<section class="screen" id="scr-defesa" data-name="defesa">
+  <div class="sec">
+    <div class="eyebrow reveal">// Tela 05 · Defesa</div>
+    <h2 class="reveal">Como <span class="grad-txt">evitar e combater</span>?</h2>
+    <div class="def-cols">
+      <div class="card def-col green reveal">
+        <h3>🟢 PREVENIR</h3>
+        <ul class="def-list">
+          <li><span class="ic">🚨</span><span><b>Desconfie da urgência</b> — pedidos de dinheiro ou dados por vídeo/áudio "para agora".</span></li>
+          <li><span class="ic"></span><span><b>Procure os sinais</b> — piscar estranho, boca fora de sincronia, iluminação incoerente, voz robótica ou com cortes.</span></li>
+          <li><span class="ic">🔁</span><span><b>Confirme por outro canal</b> — ligue você mesmo para a pessoa; cheque o perfil oficial.</span></li>
+          <li><span class="ic">🔒</span><span><b>Feche a privacidade das redes</b> — menos fotos e áudios públicos = menos "combustível" para a IA.</span></li>
+          <li><span class="ic">🔎</span><span><b>Use verificação</b> — busca reversa de imagem e agências de checagem: Lupa, Aos Fatos, Comprova.</span></li>
+          <li><span class="ic">🗳️</span><span><b>Em eleição:</b> só compartilhe vídeo/áudio político depois que uma agência de checagem ou o TSE confirmar.</span></li>
+        </ul>
+      </div>
+      <div class="card def-col red reveal">
+        <h3>🔴 COMBATER</h3>
+        <ul class="def-list">
+          <li><span class="ic">🚩</span><span><b>Denuncie na plataforma</b> — Instagram, TikTok e YouTube têm botão de denúncia por conteúdo enganoso.</span></li>
+          <li><span class="ic">📝</span><span><b>Registre Boletim de Ocorrência</b> em caso de golpe ou dano à imagem.</span></li>
+          <li><span class="ic">🛡️</span><span><b>SaferNet Brasil</b> — canal nacional de denúncia de crimes digitais (denuncie.org.br).</span></li>
+          <li><span class="ic">🗳️</span><span><b>Caso eleitoral?</b> Use o app <b>Pardal</b> ou procure a Justiça Eleitoral (TSE).</span></li>
+          <li><span class="ic">📣</span><span><b>Espalhe o alerta, não o conteúdo falso</b> — avise sua rede para proteger os outros.</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 class="reveal" style="font:700 1.3rem var(--font-d);margin-top:52px">🎯 Treine agora</h3>
+    <div class="train">
+      <div class="card train-card reveal"><span class="t-ico">🎯</span><h4>Mini-quiz: ache o deepfake</h4><p>Duas imagens, uma é falsa. Consegue descobrir qual?</p><button class="btn btn-primary btn-sm" data-go="quiz">Abrir →</button></div>
+      <div class="card train-card reveal"><span class="t-ico">🤖</span><h4>Simulador: isso é golpe?</h4><p>6 situações reais analisadas pelo DesmascaraBot.</p><button class="btn btn-primary btn-sm" data-go="simulador">Abrir →</button></div>
+      <div class="card train-card reveal"><span class="t-ico">🔬</span><h4>Comparador original × deepfake</h4><p>Arraste a linha e ache as diferenças no laboratório anti-fake.</p><button class="btn btn-primary btn-sm" data-go="comparador">Abrir →</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ TELA 6 · MINI-QUIZ ═══════════════════ -->
+<section class="screen" id="scr-quiz" data-name="quiz">
+  <div class="sec">
+    <div class="eyebrow reveal">// Tela 06 · Treino</div>
+    <h2 class="reveal">Mini-quiz: <span class="grad-txt">real ou fake?</span></h2>
+    <p class="lead reveal">Uma das imagens abaixo é de um evento REAL; a outra foi gerada ou manipulada por IA. Toque na que você acha que é o <strong>DEEPFAKE/FAKE</strong>.</p>
+    <div class="q-tabs reveal">
+      <button class="q-tab active">🌍 Eventos & Desastres</button>
+      <button class="q-tab soon" title="Em breve">🔊 Voz (em breve)</button>
+      <button class="q-tab soon" title="Em breve"> Vídeo (em breve)</button>
+    </div>
+    <div class="quiz-grid reveal">
+      <button class="quiz-opt card" id="qa" data-side="a">
+        <span class="quiz-tag">IMAGEM A</span>
+        <div class="quiz-img" id="qaImg"></div>
+        <p class="quiz-desc" id="qaDesc"></p>
+        <span class="stamp" id="qaStamp"></span>
+      </button>
+      <button class="quiz-opt card" id="qb" data-side="b">
+        <span class="quiz-tag">IMAGEM B</span>
+        <div class="quiz-img" id="qbImg"></div>
+        <p class="quiz-desc" id="qbDesc"></p>
+        <span class="stamp" id="qbStamp"></span>
+      </button>
+    </div>
+    <div class="quiz-feedback card reveal" id="qfb">
+      <h4 id="qfbTitle">🔍 Analise com calma e toque na imagem falsa.</h4>
+      <p id="qfbTxt" style="color:var(--mut);font-size:.88rem">Dica: observe detalhes como iluminação, texturas, pessoas repetidas e inconsistências.</p>
+      <ul id="qfbHints" hidden></ul>
+    </div>
+    <div class="quiz-bar reveal">
+      <span class="score-pill" id="qScore">PLACAR 0/0</span>
+      <button class="btn btn-primary btn-sm" id="qShuffle" disabled>🔁 Próximo desafio</button>
+    </div>
+    <p class="edu-note">Material educativo da Maratona Tech 2026 — as imagens são exemplos reais de desinformação para fins educacionais.</p>
+    <button class="back-link" data-go="defesa">← Voltar para "Defesa"</button>
+  </div>
+</section>
+
+<!-- ═══════════════════ TELA 7 · SIMULADOR ═══════════════════ -->
+<section class="screen" id="scr-simulador" data-name="simulador">
+  <div class="sec">
+    <div class="eyebrow reveal">// Tela 07 · Treino</div>
+    <h2 class="reveal">Simulador: <span class="grad-txt">isso é golpe?</span></h2>
+    <p class="lead reveal">Toque numa situação abaixo e veja a análise do <strong>DesmascaraBot</strong>.</p>
+    <div class="chat card card-hud reveal">
+      <div class="chat-head">
+        <div class="bot-ava">🤖</div>
+        <div><b>DESMASCARABOT</b><small>● ONLINE · MODO ESTUDO</small></div>
+        <span style="margin-left:auto" class="chip dim">6 CENÁRIOS</span>
+      </div>
+      <div class="chat-body" id="chatBody"></div>
+      <div class="chat-scen" id="chatScen"></div>
+      <div class="chat-foot">
+        <small>TOQUE NUM CENÁRIO PARA ANALISAR</small>
+        <button class="btn btn-ghost btn-sm" id="chatReset">↺ reiniciar conversa</button>
+      </div>
+    </div>
+    <p class="edu-note">Cenários inspirados em casos reais divulgados pela imprensa. Valores e detalhes conforme apuração à época.</p>
+    <button class="back-link" data-go="defesa">← Voltar para "Defesa"</button>
+  </div>
+</section>
+
+<!-- ══════════════════ TELA 8 · COMPARADOR ═══════════════════ -->
+<section class="screen" id="scr-comparador" data-name="comparador">
+  <div class="sec">
+    <div class="eyebrow reveal">// Tela 08 · Laboratório anti-fake</div>
+    <h2 class="reveal">Comparador <span class="grad-txt">original × deepfake</span></h2>
+    <p class="lead reveal">Arraste a linha branca e compare a foto real com a versão deepfake. Material usado apenas para estudo.</p>
+    <div class="cmp-wrap reveal">
+      <div class="cmp" id="cmp">
+        <div class="cmp-layer cmp-fake" id="cmpFake"></div>
+        <div class="cmp-layer cmp-real" id="cmpReal"></div>
+        <span class="cmp-label l">ORIGINAL</span>
+        <span class="cmp-label r">DEEPFAKE</span>
+        <div class="cmp-handle" id="cmpHandle" role="slider" tabindex="0" aria-label="Linha de comparação" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"><span class="cmp-grip">◂▸</span></div>
+      </div>
+      <p class="cmp-hint">◂ ARRASTE A LINHA · OU USE ← → COM FOCO NO CONTROLE ▸</p>
+    </div>
+    <div class="cmp-tips">
+      <div class="card tip reveal">🧴<span><b>Textura da pele:</b> o deepfake tende a "alisar" poros e detalhes.</span></div>
+      <div class="card tip reveal">👁️<span><b>Olhos e sorriso:</b> expressão sutilmente diferente.</span></div>
+      <div class="card tip reveal">💇<span><b>Cabelo:</b> fios e brilho mudam nas bordas.</span></div>
+      <div class="card tip reveal">🧥<span><b>Roupa e fundo:</b> pequenos detalhes distorcidos.</span></div>
+    </div>
+    <p class="edu-note">Em deepfakes reais, os sinais podem ser ainda mais sutis — às vezes invisíveis a olho nu. Na dúvida: confirme por outro canal e cheque em Lupa, Aos Fatos ou Comprova.</p>
+    <button class="back-link" data-go="problema">← Voltar para "O Problema"</button>
+  </div>
+</section>
+
+<!-- ═══════════════════ TELA 9 · FONTES ═══════════════════ -->
+<section class="screen" id="scr-fontes" data-name="fontes">
+  <div class="sec">
+    <div class="eyebrow reveal">// Tela 09 · Transparência</div>
+    <h2 class="reveal">Fontes &amp; <span class="grad-txt">créditos</span></h2>
+    <div class="src-grid" style="margin-top:24px">
+      <div class="card reveal"><h4>📚 Wikipédia (pt e en)</h4><p>Verbete "Deepfake" — ponto de partida para definição, histórico, tipos (áudio, vídeo, imagem) e casos citados. Dados conferidos nas fontes primárias e agências de checagem.</p><span class="url">wikipedia.org</span></div>
+      <div class="card reveal"><h4>🔎 Agências de fact-checking</h4><p>Lupa · Aos Fatos · Comprova — referência para checagem de conteúdos suspeitos.</p><span class="url">agencialupa.com.br · aosfatos.org · projetocomprova.com.br</span></div>
+      <div class="card reveal"><h4>🗳️ TSE</h4><p>Regras eleitorais sobre deepfakes em campanhas (eleições municipais de 2024) e app Pardal para denúncias.</p><span class="url">tse.jus.br</span></div>
+      <div class="card reveal"><h4>🛡️ SaferNet Brasil</h4><p>Canal de denúncias de crimes digitais no Brasil.</p><span class="url">safernet.org.br · denuncie.org.br</span></div>
+    </div>
+    <div class="card case-list reveal" style="margin-top:18px">
+      <h4 style="font:700 1rem var(--font-d);margin-bottom:10px">📰 Casos reais citados <span style="color:var(--dim);font-weight:400;font-size:.8rem">(valores conforme a imprensa à época)</span></h4>
+      <ul>
+        <li>Vídeo falso de rendição na guerra da Ucrânia (2022).</li>
+        <li>Clonagem de voz de executivo na Europa (2019).</li>
+        <li>Robocall com voz clonada na prévia de New Hampshire, EUA (2024).</li>
+        <li>Imagens sintéticas não consensuais da cantora Taylor Swift (2024).</li>
+        <li>Videochamada falsa em Hong Kong (2024).</li>
+        <li>Golpes com voz clonada no Brasil — imprensa brasileira.</li>
+      </ul>
+    </div>
+    <div class="card reveal" style="margin-top:18px"><h4 style="font:700 1rem var(--font-d);margin-bottom:8px">🖼️ Imagens de exemplo</h4><p style="color:var(--mut);font-size:.88rem">Pares original × deepfake usados exclusivamente para fins educativos neste protótipo (Maratona Tech 2026), sem qualquer intenção de difamação ou uso indevido.</p></div>
+    <div class="warn-box reveal">⚠️ <span><strong>Regra do projeto:</strong> nenhum dado foi inventado. Quando a confirmação exata não foi possível, usamos linguagem genérica. Este protótipo é educativo — para detalhes, consulte as fontes originais.</span></div>
+    <div class="proto-foot reveal">
+      <b>PROTÓTIPO EDUCATIVO · MARATONA TECH 2026 · FASE 1: DILEMAS DIGITAIS</b>
+      <p>DESMASCARA — Real ou Fake? · identifique, evite e combata deepfakes.</p>
+      <div class="team-line">EQUIPE: ______________________________</div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ═══════════ TAB BAR ══════════ -->
+<nav class="tabbar" aria-label="Navegação principal">
+  <button class="tab active" data-go="inicio" data-tab="inicio"><span class="ico"></span>Início</button>
+  <button class="tab" data-go="problema" data-tab="problema"><span class="ico">🧐</span>Problema</button>
+  <button class="tab" data-go="como" data-tab="como"><span class="ico">⚙️</span>Como</button>
+  <button class="tab" data-go="riscos" data-tab="riscos"><span class="ico">⚠️</span>Riscos</button>
+  <button class="tab" data-go="defesa" data-tab="defesa"><span class="ico">🛡️</span>Defesa</button>
+</nav>
+
+<script>
+/* ═════════════════════ NAVEGAÇÃO ENTRE TELAS ═════════════════════ */
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const ORDER = ['inicio','problema','como','riscos','defesa','quiz','simulador','comparador','fontes'];
+const screens = ORDER.map(n => document.querySelector('[data-name="'+n+'"]'));
+const NAMES = ['Início','O Problema','Como acontece','Riscos','Defesa','Mini-quiz','Simulador','Comparador','Fontes'];
+let cur = 0;
+
+const dotsBox = document.getElementById('dots');
+ORDER.forEach((n,i)=>{
+  const b=document.createElement('button');
+  b.className='dot'+(i===0?' on':''); b.title='Tela '+(i+1)+': '+NAMES[i];
+  b.setAttribute('aria-label',NAMES[i]);
+  b.addEventListener('click',()=>go(n));
+  dotsBox.appendChild(b);
+});
+const dots=[...dotsBox.children];
+
+function go(name){
+  const idx = ORDER.indexOf(name);
+  if(idx<0) return;
+  screens[cur].classList.remove('active');
+  cur = idx;
+  const s = screens[cur];
+  s.classList.add('active');
+  window.scrollTo(0,0);
+  document.getElementById('scrCount').textContent = 'TELA 0'+(cur+1)+'/09';
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
+  dots.forEach((d,i)=>d.classList.toggle('on', i===cur));
+  history.replaceState(null,'','#'+name);
+  playReveals(s);
+}
+document.addEventListener('click', e=>{
+  const t = e.target.closest('[data-go]');
+  if(t) go(t.dataset.go);
+});
+document.addEventListener('keydown', e=>{
+  if(e.target.closest && e.target.closest('#cmpHandle, input, textarea')) return;
+  if(e.key==='ArrowRight'){ e.preventDefault(); go(ORDER[(cur+1)%ORDER.length]); }
+  if(e.key==='ArrowLeft'){ e.preventDefault(); go(ORDER[(cur-1+ORDER.length)%ORDER.length]); }
+});
+if(location.hash && ORDER.includes(location.hash.slice(1))) go(location.hash.slice(1));
+
+/* ═════════════════════ REVEAL / SCROLL ═════════════════════ */
+const io = new IntersectionObserver(entries=>{
+  entries.forEach(en=>{ if(en.isIntersecting) en.target.classList.add('in'); });
+},{threshold:.12});
+document.querySelectorAll('.screen').forEach(s=>{
+  s.querySelectorAll('.reveal').forEach((el,i)=>{ el.style.setProperty('--i', i%12); io.observe(el); });
+});
+function playReveals(s){
+  s.querySelectorAll('.reveal').forEach(el=>{
+    if(reduced){ el.classList.add('in'); return; }
+    el.classList.remove('in'); io.unobserve(el); io.observe(el);
+  });
+}
+
+/* ════════════════════ HERO: SCRAMBLE + HUD ═════════════════════ */
+(function(){
+  const el=document.getElementById('heroTitle'), txt=el.dataset.text;
+  if(reduced){ el.textContent=txt; return; }
+  const chars='01<>/#_\\|=?+*'; const dur=1300; const start=performance.now();
+  (function tick(t){
+    const p=Math.min(1,(t-start)/dur), k=Math.floor(p*txt.length);
+    let s=txt.slice(0,k);
+    for(let i=k;i<txt.length;i++) s+=chars[(Math.random()*chars.length)|0];
+    el.textContent=s;
+    if(p<1) requestAnimationFrame(tick); else el.textContent=txt;
+  })(start);
+})();
+(function(){
+  const v=document.getElementById('hudVerdict');
+  const V=[['ANALISANDO…','scan'],['REAL ✓','ok'],['FAKE DETECTADO ✗','bad'],['SINCRONIZANDO…','scan'],['REAL ✓','ok']];
+  let i=0;
+  setInterval(()=>{ i=(i+1)%V.length; v.textContent=V[i][0]; v.className='verdict '+V[i][1]; },2100);
+  const m=document.getElementById('hudMeter'), c=document.getElementById('hudConf');
+  let conf=87.4;
+  setInterval(()=>{
+    conf=Math.max(78,Math.min(98, conf+(Math.random()-.5)*4));
+    c.textContent=conf.toFixed(1)+'%'; m.style.width=conf+'%';
+  },850);
+})();
+
+/* ═════════════════════ ABAS DE FORMATO (PROBLEMA) ═════════════════════ */
+document.querySelectorAll('.ftab').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.ftab').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    document.querySelectorAll('.fpanel').forEach(p=>p.classList.remove('show'));
+    document.getElementById('fp-'+b.dataset.ft).classList.add('show');
+  });
+});
+
+/* ═════════════════════ MINI-QUIZ - EVENTOS E DESASTRES ════════════════════ */
+const EVENT_PAIRS = [
+  {
+    // Par 1: Show/Concerto
+    real: {
+      url: "https://images.unsplash.com/photo-1501281668745-f7f5790ddbf0?w=600",
+      desc: "Show real: multidão em estádio com iluminação natural, pessoas com posições variadas e detalhes consistentes.",
+      hints: [
+        "Multidão com diversidade natural de pessoas",
+        "Iluminação consistente com o ambiente",
+        "Detalhes nítidos e coerentes",
+        "Pessoas em posições naturais e variadas"
+      ]
+    },
+    fake: {
+      url: "https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=600",
+      desc: "FAKE/IA: imagem gerada por IA com padrão repetitivo, iluminação artificial excessiva e detalhes estranhos.",
+      hints: [
+        "Padrões repetitivos na multidão",
+        "Iluminação artificial/sintética",
+        "Rostos ou corpos distorcidos",
+        "Texturas estranhas ou borradas"
+      ]
+    }
+  },
+  {
+    // Par 2: Terremoto
+    real: {
+      url: "https://images.unsplash.com/photo-1563205764-6e3c039684b5?w=600",
+      desc: "Terremoto real: destruição com detalhes coerentes, escombros naturais e iluminação realista.",
+      hints: [
+        "Destruição com padrões naturais",
+        "Sombras e iluminação consistentes",
+        "Detalhes de construção realistas",
+        "Contexto geográfico coerente"
+      ]
+    },
+    fake: {
+      url: "https://images.unsplash.com/photo-1628149693511-4f67b0179017?w=600",
+      desc: "FAKE/IA: imagem sintética de terremoto com elementos irreais e inconsistências físicas.",
+      hints: [
+        "Elementos flutuando de forma estranha",
+        "Física incoerente na destruição",
+        "Sombras inconsistentes",
+        "Detalhes arquitetônicos impossíveis"
+      ]
+    }
+  },
+  {
+    // Par 3: Festival
+    real: {
+      url: "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=600",
+      desc: "Festival real: palco com estrutura física real, público diversificado e iluminação natural.",
+      hints: [
+        "Estrutura de palco realista",
+        "Público com comportamentos naturais",
+        "Iluminação de show consistente",
+        "Detalhes de equipamentos reais"
+      ]
+    },
+    fake: {
+      url: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=600",
+      desc: "FAKE/IA: festival gerado por IA com elementos sintéticos e padrões repetitivos.",
+      hints: [
+        "Pessoas com aparências muito similares",
+        "Elementos de palco irreais",
+        "Cores saturadas artificialmente",
+        "Detalhes borrados ou distorcidos"
+      ]
+    }
+  }
+];
+
+const quiz = { pair: 0, fakeSide: 'a', answered: false, hit: 0, total: 0 };
+const qa = document.getElementById('qa'), qb = document.getElementById('qb');
+
+function renderQuiz() {
+  const p = EVENT_PAIRS[quiz.pair];
+  const fakeLeft = Math.random() < .5;
+  quiz.fakeSide = fakeLeft ? 'a' : 'b';
+  
+  // Imagem A
+  const imgA = document.getElementById('qaImg');
+  const descA = document.getElementById('qaDesc');
+  imgA.innerHTML = `<img src="${fakeLeft ? p.fake.url : p.real.url}" alt="Imagem A" loading="lazy">`;
+  descA.textContent = fakeLeft ? p.fake.desc : p.real.desc;
+  
+  // Imagem B
+  const imgB = document.getElementById('qbImg');
+  const descB = document.getElementById('qbDesc');
+  imgB.innerHTML = `<img src="${fakeLeft ? p.real.url : p.fake.url}" alt="Imagem B" loading="lazy">`;
+  descB.textContent = fakeLeft ? p.real.desc : p.fake.desc;
+  
+  [qa, qb].forEach(el => el.classList.remove('was-fake', 'was-real', 'picked', 'locked'));
+  document.getElementById('qaStamp').textContent = '';
+  document.getElementById('qbStamp').textContent = '';
+  quiz.answered = false;
+  
+  const fb = document.getElementById('qfb');
+  fb.className = 'quiz-feedback card reveal in';
+  document.getElementById('qfbTitle').textContent = '🔍 Analise com calma e toque na imagem falsa.';
+  document.getElementById('qfbTxt').textContent = 'Dica: observe detalhes como iluminação, texturas, pessoas repetidas e inconsistências.';
+  document.getElementById('qfbHints').hidden = true;
+  document.getElementById('qfbHints').innerHTML = '';
+  document.getElementById('qShuffle').disabled = true;
+}
+
+function judge(btn) {
+  if (quiz.answered) return;
+  quiz.answered = true;
+  quiz.total++;
+  
+  const hit = btn.dataset.side === quiz.fakeSide;
+  if (hit) quiz.hit++;
+  
+  const fakeEl = quiz.fakeSide === 'a' ? qa : qb;
+  const realEl = quiz.fakeSide === 'a' ? qb : qa;
+  
+  fakeEl.classList.add('was-fake');
+  document.getElementById(fakeEl.id + 'Stamp').textContent = 'FAKE/IA';
+  realEl.classList.add('was-real');
+  document.getElementById(realEl.id + 'Stamp').textContent = 'REAL';
+  
+  btn.classList.add('picked');
+  [qa, qb].forEach(el => el.classList.add('locked'));
+  
+  const fb = document.getElementById('qfb');
+  fb.classList.add(hit ? 'hit' : 'miss');
+  
+  document.getElementById('qfbTitle').textContent = hit ? '✅ Mandou bem! Você acertou.' : '❌ Passou batido — era a outra!';
+  document.getElementById('qfbTxt').textContent = hit ? 'Você identificou os sinais certos. Veja o que entregou o fake:' : 'Sem crise: é assim que se treina o olhar. Veja os sinais que entregaram o fake:';
+  
+  const ul = document.getElementById('qfbHints');
+  ul.hidden = false;
+  const p = EVENT_PAIRS[quiz.pair];
+  const hints = quiz.fakeSide === 'a' ? p.fake.hints : p.real.hints;
+  ul.innerHTML = hints.map(h => '<li>' + h + '</li>').join('');
+  
+  document.getElementById('qScore').textContent = 'PLACAR ' + quiz.hit + '/' + quiz.total;
+  document.getElementById('qShuffle').disabled = false;
+}
+
+qa.addEventListener('click', () => judge(qa));
+qb.addEventListener('click', () => judge(qb));
+document.getElementById('qShuffle').addEventListener('click', () => {
+  quiz.pair = (quiz.pair + 1) % EVENT_PAIRS.length;
+  renderQuiz();
+});
+
+renderQuiz();
+
+/* ═════════════════════ COMPARADOR ═════════════════════ */
+const FRECK=[[118,178],[132,184],[146,180],[160,183],[174,178],[125,190],[168,190],[140,172],[155,170],[112,170],[180,172],[148,190]];
+function faceSVG(o){
+  const id=o.id;
+  let grid='';
+  for(let i=1;i<6;i++){ grid+='<line x1="'+(i*50)+'" y1="0" x2="'+(i*50)+'" y2="340" /><line x1="0" y1="'+(i*57)+'" x2="300" y2="'+(i*57)+'" />'; }
+  let freck='';
+  if(o.freck){ FRECK.forEach(f=>{ freck+='<circle cx="'+f[0]+'" cy="'+f[1]+'" r="1.4" fill="#a5673f" opacity=".5"/>'; }); }
+  const browL = o.asym? 'M104 126 q15 -8 30 -2' : 'M104 132 q15 -8 30 -2';
+  const browR = o.asym? 'M166 135 q15 -6 30 -1' : 'M166 131 q15 -8 30 -2';
+  const eyeRy = o.asym? 148 : 150;
+  const mouth = o.asym? 'M122 208 q28 22 58 -6' : 'M122 206 q28 17 56 0';
+  let extra='';
+  if(o.asym){
+    extra+='<ellipse cx="152" cy="150" rx="79" ry="92" fill="none" stroke="rgba(34,211,238,.3)" stroke-width="1.4" stroke-dasharray="3 7"/>';
+  }
+  let glitch='';
+  if(o.glitch){
+    glitch='<g><rect x="112" y="192" width="78" height="9" fill="'+o.skin+'" opacity=".92" transform="translate(7 0)"/>'
+          +'<rect x="98" y="199" width="108" height="4" fill="rgba(34,211,238,.32)"/>'
+          +'<rect x="104" y="206" width="98" height="3" fill="rgba(251,86,112,.28)"/></g>';
+  }
+  return '<svg viewBox="0 0 300 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Retrato de estudo">'
+    +'<defs><linearGradient id="bg'+id+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="'+o.bg1+'"/><stop offset="1" stop-color="'+o.bg2+'"/></linearGradient>'
+    +'<radialGradient id="sk'+id+'" cx="50%" cy="38%" r="72%"><stop offset="0" stop-color="'+o.skinHi+'"/><stop offset="1" stop-color="'+o.skin+'"/></radialGradient>'
+    +'<filter id="nz'+id+'"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2"/></filter></defs>'
+    +'<rect width="300" height="340" fill="url(#bg'+id+')"/>'
+    +'<g stroke="rgba(120,160,255,.06)" fill="none">'+grid+'</g>'
+    +'<path d="M52 340 C64 278 108 260 150 260 C192 260 236 278 248 340 Z" fill="'+o.jacket+'"/>'
+    +'<path d="M128 268 L150 292 L172 268" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="3"/>'
+    +'<rect x="132" y="212" width="36" height="56" rx="15" fill="'+o.skinSh+'"/>'
+    +extra
+    +'<ellipse cx="150" cy="150" rx="76" ry="90" fill="url(#sk'+id+')"/>'
+    +'<ellipse cx="75" cy="156" rx="10" ry="16" fill="'+o.skinSh+'"/>'
+    +'<ellipse cx="225" cy="156" rx="10" ry="16" fill="'+o.skinSh+'"/>'
+    +'<path d="M74 130 C78 60 116 42 150 42 C184 42 222 60 226 130 C224 96 204 76 150 76 C96 76 76 96 74 130 Z" fill="'+o.hair+'"/>'
+    +'<path d="'+browL+'" stroke="#1c130c" stroke-width="6" fill="none" stroke-linecap="round"/>'
+    +'<path d="'+browR+'" stroke="#1c130c" stroke-width="6" fill="none" stroke-linecap="round"/>'
+    +'<g><ellipse cx="120" cy="150" rx="13" ry="8.5" fill="#fff"/><circle cx="120" cy="150" r="6" fill="'+o.iris+'"/><circle cx="120" cy="150" r="2.6" fill="#0a0d16"/><circle cx="122.5" cy="147.5" r="1.6" fill="#fff"/></g>'
+    +'<g><ellipse cx="180" cy="'+eyeRy+'" rx="13" ry="8.5" fill="#fff"/><circle cx="'+(o.asym?182:180)+'" cy="'+eyeRy+'" r="6" fill="'+o.iris+'"/><circle cx="'+(o.asym?182:180)+'" cy="'+eyeRy+'" r="2.6" fill="#0a0d16"/><circle cx="182.5" cy="'+(eyeRy-2.5)+'" r="1.6" fill="#fff"/></g>'
+    +'<path d="M150 152 q-6 22 -8 27 q7 6 16 0" fill="none" stroke="rgba(90,50,25,.55)" stroke-width="3" stroke-linecap="round"/>'
+    +'<path d="'+mouth+'" fill="none" stroke="#8c4a3c" stroke-width="5" stroke-linecap="round"/>'
+    +freck+glitch
+    +(o.grain?'<rect width="300" height="340" filter="url(#nz'+id+')" opacity=".055"/>':'')
+    +'<rect width="300" height="340" fill="url(#bg'+id+')" opacity=".1"/>'
+    +'</svg>';
+}
+const PAIRS=[
+ {real:{bg1:'#0d1834',bg2:'#251b4d',skin:'#e9b98d',skinHi:'#f6d3ab',skinSh:'#c99770',hair:'#2a1c12',jacket:'#20305c',iris:'#5b3d2a',grain:1,freck:1},
+  fake:{bg1:'#0d1834',bg2:'#251b4d',skin:'#efc49c',skinHi:'#fbe3c2',skinSh:'#cf9f77',hair:'#2a1c12',jacket:'#20305c',iris:'#5b3d2a',asym:1,glitch:1}},
+ {real:{bg1:'#101f38',bg2:'#0e2a33',skin:'#c98a5e',skinHi:'#e2a97c',skinSh:'#a86f48',hair:'#14100c',jacket:'#2a2148',iris:'#3d2a1c',grain:1,freck:1},
+  fake:{bg1:'#101f38',bg2:'#0e2a33',skin:'#d19468',skinHi:'#eec093',skinSh:'#b0754c',hair:'#14100c',jacket:'#2a2148',iris:'#3d2a1c',asym:1,glitch:1}},
+ {real:{bg1:'#1a1440',bg2:'#0c2036',skin:'#f0c8a0',skinHi:'#fbdfc0',skinSh:'#d0a379',hair:'#6e4520',jacket:'#153a52',iris:'#4a6a3a',grain:1,freck:1},
+  fake:{bg1:'#1a1440',bg2:'#0c2036',skin:'#f4d0ab',skinHi:'#fdead2',skinSh:'#d6aa80',hair:'#6e4520',jacket:'#153a52',iris:'#4a6a3a',asym:1,glitch:1}}
+];
+document.getElementById('cmpReal').innerHTML = faceSVG(Object.assign({},PAIRS[0].real,{id:'cr'}));
+document.getElementById('cmpFake').innerHTML = faceSVG(Object.assign({},PAIRS[0].fake,{id:'cf'}));
+const cmp=document.getElementById('cmp'), cmpH=document.getElementById('cmpHandle');
+let cmpDrag=false;
+function setSplit(p){ p=Math.max(3,Math.min(97,p)); cmp.style.setProperty('--split',p+'%'); cmpH.setAttribute('aria-valuenow',Math.round(p)); }
+function cmpMove(e){ const r=cmp.getBoundingClientRect(); setSplit((e.clientX-r.left)/r.width*100); }
+cmp.addEventListener('pointerdown',e=>{ cmpDrag=true; try{cmp.setPointerCapture(e.pointerId);}catch(_){} cmpMove(e); });
+cmp.addEventListener('pointermove',e=>{ if(cmpDrag) cmpMove(e); });
+addEventListener('pointerup',()=>cmpDrag=false);
+cmpH.addEventListener('keydown',e=>{
+  const now=parseFloat(getComputedStyle(cmp).getPropertyValue('--split'))||50;
+  if(e.key==='ArrowLeft'){ e.preventDefault(); e.stopPropagation(); setSplit(now-3); }
+  if(e.key==='ArrowRight'){ e.preventDefault(); e.stopPropagation(); setSplit(now+3); }
+});
+
+/* ═════════════════════ SIMULADOR ═════════════════════ */
+const SCEN=[
+ {icon:'📹',title:'Videochamada do "diretor"',user:'Entrei numa videochamada e o "diretor financeiro" pediu uma transferência urgente de R$ 80 mil. Era ele mesmo… ou não?',
+  v:['GOLPE CONFIRMADO','v-bad'],body:'Esse roteiro é idêntico ao caso de Hong Kong (2024), que causou ~US$ 25 milhões de prejuízo: vários participantes da chamada eram deepfakes.',
+  sig:['Urgência e pedido de sigilo','Vídeo curto, travado ou câmera "ruim"','Piscar/boca levemente fora de sincronia'],
+  act:['Confirme por um canal interno oficial','Nunca transfira sob pressão','Avise a empresa e registre B.O.'],src:'Caso real: imprensa internacional (ex.: CNN)'},
+ {icon:'💸',title:'Áudio do "irmão" pedindo Pix',user:'Recebi um áudio do meu irmão pedindo Pix urgente porque "trocou de número". A voz era IDÊNTICA!',
+  v:['GOLPE CLÁSSICO','v-bad'],body:'No Brasil, golpes com voz clonada via WhatsApp se multiplicaram — a IA deixa a voz quase idêntica com poucos segundos de áudio original.',
+  sig:['Urgência + número "novo"','Conta destinatária diferente do comum','Fala sem pausas naturais de respiração'],
+  act:['Ligue para o número antigo/conhecido','Pergunte algo que só a pessoa sabe','Bloqueie e denuncie no WhatsApp'],src:'Casos reais: imprensa brasileira'},
+ {icon:'️',title:'Áudio pedindo para "não votar"',user:'Circula um áudio do "candidato" dizendo para o pessoal votar amanhã, em outro horário. Pode isso?',
+  v:['FAKE · CRIME ELEITORAL','v-bad'],body:'Já aconteceu: na prévia de New Hampshire (EUA, 2024), uma ligação robótica com voz clonada pediu que eleitores não votassem. O responsável foi identificado e punido.',
+  sig:['Data/horário diferentes do oficial','Origem fora dos canais do candidato','Voz clonada sem naturais'],
+  act:['Confira dia/horário SÓ em tse.jus.br','Denuncie no app Pardal (TSE)','Não repasse o áudio'],src:'Caso real: imprensa + FCC (EUA)'},
+ {icon:'🎤',title:'Imagens íntimas de famosa',user:'Estão espalhando "imagens íntimas" de uma cantora geradas por IA. Devo olhar e repassar?',
+  v:['CONTEÚDO FALSO + CRIME','v-bad'],body:'Em 2024, imagens sintéticas não consensuais de Taylor Swift viralizaram e impulsionaram leis contra deepfake não consensual no mundo todo. Compartilhar também causa dano.',
+  sig:['Pele alisada e detalhes distorcidos','Espalhadas por perfis anônimos','Sem confirmação de veículo sério'],
+  act:['Não visualize nem compartilhe','Denuncie na plataforma (Instagram/TikTok/YouTube)','Denuncie na SaferNet (denuncie.org.br)'],src:'Caso real: imprensa internacional'},
+ {icon:'🏦',title:'Ligação do "banco" pedindo senha',user:'O "banco" ligou com a voz do meu gerente, confirmando uma compra suspeita e pedindo minha senha para "estornar".',
+  v:['GOLPE','v-bad'],body:'Bancos NUNCA pedem senha, token ou transferência para "estornar". A voz do gerente pode ter sido clonada a partir de áudios públicos.',
+  sig:['Pedido de senha/token','Clima de urgência e medo','Número de origem estranho'],
+  act:['Desligue na hora','Ligue para o número no verso do cartão','Se informou dados: registre B.O.'],src:'Modo de golpe amplamente reportado'},
+ {icon:'🖥️',title:'Vídeo de "fraude nas urnas"',user:'Chegou um vídeo bombástico dizendo que as urnas foram fraudadas. Repasso?',
+  v:['DESINFORMAÇÃO RECORRENTE','v-warn'],body:'Vídeos falsos sobre urnas reaparecem em toda eleição para minar a confiança nas instituições. Antes de compartilhar: pare e cheque.',
+  sig:['Sem fonte verificável','Cortes e legendas fora de contexto','Pedido explícito de repasse urgente'],
+  act:['Cheque em Lupa, Aos Fatos ou Comprova','Fonte oficial: TSE (tse.jus.br)','Espalhe o alerta, não o conteúdo'],src:'Regras de deepfake em campanha: TSE, 2024'}
+];
+const chatBody=document.getElementById('chatBody'), chatScen=document.getElementById('chatScen');
+function addMsg(cls,html){
+  const d=document.createElement('div'); d.className='msg '+cls; d.innerHTML=html;
+  chatBody.appendChild(d); chatBody.scrollTop=chatBody.scrollHeight; return d;
+}
+function botSay(html,delay){
+  const tp=addMsg('bot typing','<span></span><span></span><span></span>');
+  setTimeout(()=>{ tp.classList.remove('typing'); tp.innerHTML=html; chatBody.scrollTop=chatBody.scrollHeight; }, reduced?0:(delay||950));
+}
+function buildBot(s){
+  return '<span class="v-badge '+s.v[1]+'">'+s.v[0]+'</span><p>'+s.body+'</p>'
+    +'<div class="m-sub"><div><b> SINAIS</b>'+s.sig.map(x=>'• '+x).join('<br>')+'</div>'
+    +'<div><b>🛡️ O QUE FAZER</b>'+s.act.map(x=>'• '+x).join('<br>')+'</div></div>'
+    +'<div class="m-src">📎 '+s.src+'</div>';
+}
+function resetChat(){
+  chatBody.innerHTML='';
+  addMsg('bot','Olá! Eu sou o <b>DesmascaraBot</b> 🤖<br>Toque em um cenário abaixo que eu analiso se tem cara de golpe.');
+  [...chatScen.children].forEach(b=>b.classList.remove('used'));
+}
+SCEN.forEach((s,i)=>{
+  const b=document.createElement('button');
+  b.className='scen-btn'; b.innerHTML='<span>'+s.icon+'</span><span>'+s.title+'</span>';
+  b.addEventListener('click',()=>{
+    if(b.classList.contains('used')) return;
+    b.classList.add('used');
+    addMsg('user',s.user);
+    botSay(buildBot(s), 900+i*60);
+  });
+  chatScen.appendChild(b);
+});
+document.getElementById('chatReset').addEventListener('click',resetChat);
+resetChat();
+</script>
+</body>
+</html>
